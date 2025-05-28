@@ -37,38 +37,38 @@
             background: rgba(0,0,0,0.6);
             z-index: 1;
         }
+        .label-logo {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 80px;
+            max-height: 80px;
+            z-index: 2;
+            filter: invert(1);
+            opacity: 0.7;
+        }
         .content {
             position: relative;
             z-index: 2;
             max-width: 800px;
+            width: 100%;
             padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .band-name {
             font-size: 4rem;
             margin-bottom: 20px;
             text-transform: uppercase;
             letter-spacing: 5px;
+            text-align: center;
         }
         .tagline {
             font-size: 1.5rem;
             margin-bottom: 30px;
-        }
-        .cta-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-        .cta-button {
-            display: inline-block;
-            padding: 12px 24px;
-            border: 2px solid white;
-            color: white;
-            text-decoration: none;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-        }
-        .cta-button:hover {
-            background-color: rgba(255,255,255,0.2);
+            text-align: center;
         }
         .contact-info {
             position: absolute;
@@ -79,18 +79,32 @@
             color: white;
             z-index: 2;
         }
-        .nav {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 3;
+        
+        /* Social Links Boxes */
+        .social-boxes {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 30px;
         }
-        .nav a {
+        .social-box {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
             color: white;
             text-decoration: none;
-            margin-left: 20px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            margin: 5px;
+            text-align: center;
+        }
+        .social-box:hover {
+            background-color: rgba(255,255,255,0.2);
         }
         
         /* Bio Section Styles */
@@ -98,62 +112,109 @@
             background-color: #121212;
             color: white;
             padding: 100px 20px;
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .bio-content {
             max-width: 800px;
+            width: 100%;
             margin: 0 auto;
             line-height: 1.6;
+            text-align: center;
         }
         .bio-content h2 {
             margin-bottom: 30px;
             font-size: 2.5rem;
+            text-align: center;
         }
         .bio-content p {
             margin-bottom: 20px;
             font-size: 1.1rem;
+            text-align: center;
         }
         
-        /* Social Links */
-        .social-links {
+        /* Releases Section */
+        .releases-section {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 100px 20px;
             display: flex;
             justify-content: center;
-            gap: 30px;
-            margin-top: 40px;
+            align-items: center;
+            flex-direction: column;
         }
-        .social-links a {
-            color: white;
-            text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: color 0.3s ease;
+        .releases-content {
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        .social-links a:hover {
-            color: #ffd700;
+        .releases-cover {
+            max-width: 400px;
+            width: 100%;
+            margin: 0 auto 30px;
+            transition: transform 0.3s ease;
+        }
+        .releases-cover:hover {
+            transform: scale(1.05);
+        }
+        .releases-cover a {
+            display: block;
+            width: 100%;
+        }
+        .releases-cover img {
+            width: 100%;
+            max-width: 100%;
+            border-radius: 10px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .band-name {
+                font-size: 2.5rem;
+            }
+            .tagline {
+                font-size: 1.2rem;
+            }
+            .social-boxes {
+                flex-direction: column;
+                align-items: center;
+            }
+            .social-box {
+                width: 80%;
+                text-align: center;
+            }
+            .label-logo {
+                max-width: 60px;
+                max-height: 60px;
+            }
+            .bio-content h2 {
+                font-size: 2rem;
+            }
+            .bio-content p {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="nav">
-        <a href="#home">Home</a>
-        <a href="#bio">Bio</a>
-        <a href="#music">Music</a>
-        <a href="#tour">Tour</a>
-        <a href="#contact">Contact</a>
-    </div>
-
     <div class="background" id="home">
         <div class="overlay"></div>
+        <img src="batov.png" alt="Batov Records" class="label-logo">
         <div class="content">
             <h1 class="band-name">La Chooma</h1>
-            <p class="tagline">WE JUST RELEASED OUR NEW ALBUM</p>
-            <div class="cta-buttons">
-                <a href="#music" class="cta-button">Check it out</a>
-                <a href="#tour" class="cta-button">Watch us live</a>
+            <p class="tagline">DEBUT ALBUM COMING FALL 2025</p>
+            <div class="social-boxes">
+                <a href="https://www.instagram.com/lachooma" target="_blank" class="social-box">Instagram</a>
+                <a href="https://www.facebook.com/lachooma/" target="_blank" class="social-box">Facebook</a>
+                <a href="https://www.youtube.com/@La_chooma" target="_blank" class="social-box">YouTube</a>
+                <a href="https://open.spotify.com/artist/2zQH0WtJJBlDecHmEW7lNV" target="_blank" class="social-box">Spotify</a>
             </div>
         </div>
         <div class="contact-info">
-            alon212@gmail.com
+            Contact Management: alon212@gmail.com
         </div>
     </div>
 
@@ -166,11 +227,17 @@
             <p>
                 They are preparing for their second single with the London-based label Batov Records and the release of their debut album in the summer of 2025. Alon Carmelly, formerly the double bass player for 'The Apples', together with the band members — all of whom are active and well-known musicians in Israel's groove scene — are now on tour.
             </p>
-            <div class="social-links">
-                <a href="https://www.instagram.com/lachooma" target="_blank">Instagram</a>
-                <a href="https://www.facebook.com/lachooma/" target="_blank">Facebook</a>
-                <a href="https://www.youtube.com/@La_chooma" target="_blank">YouTube</a>
-                <a href="mailto:alon212@gmail.com">Contact</a>
+        </div>
+    </section>
+
+    <section class="releases-section" id="releases">
+        <div class="releases-content">
+            <h3>RELEASES</h3>
+            <br>
+            <div class="releases-cover">
+                <a href="https://lachooma.bandcamp.com/album/magic-plant" target="_blank">
+                    <img src="magic_plant.jpg" alt="Magic Plant Single">
+                </a>
             </div>
         </div>
     </section>
