@@ -1,267 +1,311 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Chooma - Tribal Latin Band</title>
+  <!-- ===== Required Meta ===== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Kanit import (weights 300, 400, 700) -->
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
+  <!-- ===== Title & Description ===== -->
+  <title>La Chooma – Tribal Latin Band | Debut Album Fall 2025</title>
+  <meta name="description"
+        content="La Chooma is Alon Carmelly’s Tribal Latin Band blending Afro-Latin grooves with psychedelia and desert vibes. Debut album out Fall 2025.">
+  <meta name="keywords" content="La Chooma, Tribal Latin band, Afro-Latin music, Alon Carmelly, Batov Records">
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body, html {
-            font-family: 'Kanit', sans-serif;
-            scroll-behavior: smooth;
-        }
-        .background {
-            background-image: url('lachooma_main.jpg');
-            background-size: cover;
-            background-position: center;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            text-align: center;
-            position: relative;
-        }
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 1;
-        }
-        .label-logo {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            max-width: 80px;
-            max-height: 80px;
-            z-index: 2;
-            filter: invert(1);
-            opacity: 0.7;
-        }
-        .content {
-            position: relative;
-            z-index: 2;
-            max-width: 800px;
-            width: 100%;
-            padding: 0 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .band-name {
-            font-family: 'Kanit', sans-serif;
-            font-weight: 700;
-            font-size: 4rem;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            text-align: center;
-        }
-        .tagline {
-            font-family: 'Kanit', sans-serif;
-            font-weight: 300;
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        .contact-info {
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            color: white;
-            z-index: 2;
-        }
+  <!-- ===== Canonical URL ===== -->
+  <link rel="canonical" href="https://lachooma.com/">
 
-        /* Social Links Boxes */
-        .social-boxes {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            width: 100%;
-            max-width: 800px;
-            margin-top: 30px;
-        }
-        .social-box {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            text-decoration: none;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-            margin: 5px;
-            text-align: center;
-        }
-        .social-box:hover {
-            background-color: rgba(255,255,255,0.2);
-        }
+  <!-- ===== Open Graph (Facebook / LinkedIn) ===== -->
+  <meta property="og:type"        content="website">
+  <meta property="og:url"         content="https://lachooma.com/">
+  <meta property="og:title"       content="La Chooma – Tribal Latin Band">
+  <meta property="og:description" content="La Chooma’s Afro-Latin grooves and desert vibes—debut album coming Fall 2025.">
+  <meta property="og:image"       content="https://lachooma.com/lachooma_main.jpg">
 
-        /* Bio Section Styles */
-        .bio-section {
-            background-color: #121212;
-            color: white;
-            padding: 100px 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .bio-content {
-            max-width: 800px;
-            width: 100%;
-            margin: 0 auto;
-            line-height: 1.6;
-            text-align: center;
-        }
-        .bio-content h2 {
-            margin-bottom: 30px;
-            font-family: 'Kanit', sans-serif;
-            font-weight: 700;
-            font-size: 2.5rem;
-            text-align: center;
-        }
-        .bio-content p {
-            margin-bottom: 20px;
-            font-family: 'Kanit', sans-serif;
-            font-weight: 300;
-            font-size: 1.1rem;
-            text-align: center;
-        }
+  <!-- ===== Twitter Card ===== -->
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:site"        content="@LaChooma">
+  <meta name="twitter:title"       content="La Chooma – Tribal Latin Band">
+  <meta name="twitter:description" content="Alon Carmelly’s Tribal Latin Band playing Afro-Latin grooves with desert vibes. Debut album Fall 2025.">
+  <meta name="twitter:image"       content="https://lachooma.com/lachooma_main.jpg">
 
-        /* Releases Section */
-        .releases-section {
-            background-color: #1a1a1a;
-            color: white;
-            padding: 100px 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-        .releases-content {
-            max-width: 800px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .releases-content h3 {
-            font-family: 'Kanit', sans-serif;
-            font-weight: 700;
-            font-size: 2rem;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        .releases-cover {
-            max-width: 400px;
-            width: 100%;
-            margin: 0 auto 30px;
-            transition: transform 0.3s ease;
-        }
-        .releases-cover:hover {
-            transform: scale(1.05);
-        }
-        .releases-cover a {
-            display: block;
-            width: 100%;
-        }
-        .releases-cover img {
-            width: 100%;
-            max-width: 100%;
-            border-radius: 10px;
-        }
+  <!-- ===== Structured Data (JSON-LD) ===== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "MusicGroup",
+    "name": "La Chooma",
+    "url": "https://lachooma.com/",
+    "logo": "https://lachooma.com/batov.png",
+    "sameAs": [
+      "https://www.facebook.com/lachooma/",
+      "https://www.instagram.com/lachooma",
+      "https://www.youtube.com/@La_chooma",
+      "https://open.spotify.com/artist/2zQH0WtJJBlDecHmEW7lNV",
+      "https://lachooma.bandcamp.com/"
+    ],
+    "description": "La Chooma is Alon Carmelly’s Tribal Latin Band playing Afro-Latin grooves with psychedelia and desert vibes. Debut album out Fall 2025."
+  }
+  </script>
 
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .band-name {
-                font-size: 2.5rem;
-            }
-            .tagline {
-                font-size: 1.2rem;
-            }
-            .social-boxes {
-                flex-direction: column;
-                align-items: center;
-            }
-            .social-box {
-                width: 80%;
-                text-align: center;
-            }
-            .label-logo {
-                max-width: 60px;
-                max-height: 60px;
-            }
-            .bio-content h2 {
-                font-size: 2rem;
-            }
-            .bio-content p {
-                font-size: 1rem;
-            }
-        }
-    </style>
+  <!-- ===== Google Font: Kanit ===== -->
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <!-- ===== Your Styles ===== -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body, html {
+      font-family: 'Kanit', sans-serif;
+      scroll-behavior: smooth;
+    }
+    .background {
+      background-image: url('lachooma_main.jpg');
+      background-size: cover;
+      background-position: center;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      text-align: center;
+      position: relative;
+    }
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: 1;
+    }
+    .label-logo {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 80px;
+      max-height: 80px;
+      z-index: 2;
+      filter: invert(1);
+      opacity: 0.7;
+    }
+    .content {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+      width: 100%;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .band-name {
+      font-family: 'Kanit', sans-serif;
+      font-weight: 700;
+      font-size: 4rem;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 5px;
+      text-align: center;
+    }
+    .tagline {
+      font-family: 'Kanit', sans-serif;
+      font-weight: 300;
+      font-size: 1.5rem;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .contact-info {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      color: white;
+      z-index: 2;
+    }
+
+    /* Social Links Boxes */
+    .social-boxes {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 800px;
+      margin-top: 30px;
+    }
+    .social-box {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      margin: 5px;
+      text-align: center;
+    }
+    .social-box:hover {
+      background-color: rgba(255,255,255,0.2);
+    }
+
+    /* Bio Section Styles */
+    .bio-section {
+      background-color: #121212;
+      color: white;
+      padding: 100px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .bio-content {
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      line-height: 1.6;
+      text-align: center;
+    }
+    .bio-content h2 {
+      margin-bottom: 30px;
+      font-family: 'Kanit', sans-serif;
+      font-weight: 700;
+      font-size: 2.5rem;
+      text-align: center;
+    }
+    .bio-content p {
+      margin-bottom: 20px;
+      font-family: 'Kanit', sans-serif;
+      font-weight: 300;
+      font-size: 1.1rem;
+      text-align: center;
+    }
+
+    /* Releases Section */
+    .releases-section {
+      background-color: #1a1a1a;
+      color: white;
+      padding: 100px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    .releases-content {
+      max-width: 800px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .releases-content h3 {
+      font-family: 'Kanit', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .releases-cover {
+      max-width: 400px;
+      width: 100%;
+      margin: 0 auto 30px;
+      transition: transform 0.3s ease;
+    }
+    .releases-cover:hover {
+      transform: scale(1.05);
+    }
+    .releases-cover a {
+      display: block;
+      width: 100%;
+    }
+    .releases-cover img {
+      width: 100%;
+      max-width: 100%;
+      border-radius: 10px;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+      .band-name {
+        font-size: 2.5rem;
+      }
+      .tagline {
+        font-size: 1.2rem;
+      }
+      .social-boxes {
+        flex-direction: column;
+        align-items: center;
+      }
+      .social-box {
+        width: 80%;
+        text-align: center;
+      }
+      .label-logo {
+        max-width: 60px;
+        max-height: 60px;
+      }
+      .bio-content h2 {
+        font-size: 2rem;
+      }
+      .bio-content p {
+        font-size: 1rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="background" id="home">
-        <div class="overlay"></div>
-        <img src="batov.png" alt="Batov Records" class="label-logo">
-        <div class="content">
-            <h1 class="band-name">La Chooma</h1>
-            <p class="tagline">DEBUT ALBUM COMING FALL 2025</p>
-            <div class="social-boxes">
-                <a href="https://www.instagram.com/lachooma" target="_blank" class="social-box">Instagram</a>
-                <a href="https://www.facebook.com/lachooma/" target="_blank" class="social-box">Facebook</a>
-                <a href="https://www.youtube.com/@La_chooma" target="_blank" class="social-box">YouTube</a>
-                <a href="https://open.spotify.com/artist/2zQH0WtJJBlDecHmEW7lNV" target="_blank" class="social-box">Spotify</a>
-            </div>
-        </div>
-        <!-- <div class="contact-info">
-            Contact Management: alon212@gmail.com
-        </div> -->
+  <div class="background" id="home">
+    <div class="overlay"></div>
+    <img src="batov.png" alt="Batov Records" class="label-logo">
+    <div class="content">
+      <h1 class="band-name">La Chooma</h1>
+      <p class="tagline">DEBUT ALBUM COMING FALL 2025</p>
+      <div class="social-boxes">
+        <a href="https://www.instagram.com/lachooma" target="_blank" class="social-box">Instagram</a>
+        <a href="https://www.facebook.com/lachooma/" target="_blank" class="social-box">Facebook</a>
+        <a href="https://www.youtube.com/@La_chooma" target="_blank" class="social-box">YouTube</a>
+        <a href="https://open.spotify.com/artist/2zQH0WtJJBlDecHmEW7lNV" target="_blank" class="social-box">Spotify</a>
+        <a href="https://lachooma.bandcamp.com/" target="_blank" class="social-box">Bandcamp</a>
+      </div>
     </div>
+    <div class="contact-info">
+      Contact Management: alon212@gmail.com
+    </div>
+  </div>
 
-    <section class="bio-section" id="bio">
-        <div class="bio-content">
-            <h2>About La Chooma</h2>
-            <p>
-                La Chooma, Alon Carmelly's Tribal Latin Band, plays uncompromising Afro-Latin grooves while blending sounds from the realms of psychedelia, deep jungles, and the North African desert. Gentle melodies, warm synthesizers, and a comforting desert vibe create a colorful and unique sound that effortlessly gets you dancing away.
-            </p>
-            <p>
-                They are preparing for their second single with the London-based label Batov Records and the release of their debut album in the fall of 2025. Alon Carmelly, formerly the double bass player for 'The Apples', together with the band members — all of whom are active and well-known groove artists.
-            </p>
-        </div>
-    </section>
+  <section class="bio-section" id="bio">
+    <div class="bio-content">
+      <h2>About La Chooma</h2>
+      <p>
+        La Chooma, Alon Carmelly's Tribal Latin Band, plays uncompromising Afro-Latin grooves while blending sounds from the realms of psychedelia, deep jungles, and the North African desert. Gentle melodies, warm synthesizers, and a comforting desert vibe create a colorful and unique sound that effortlessly gets you dancing away.
+      </p>
+      <p>
+        Preparing for their debut album named "Local Spirits" with the London-based label Batov Records in the fall of 2025. Alon Carmelly, formerly the double bass player for 'The Apples,' leads their live performances with organic energy and authenticity, reflecting a journey of creative evolution from a trio to a dynamic six-member ensemble.
+      </p>
+    </div>
+  </section>
 
-    <section class="releases-section" id="releases">
-        <div class="releases-content">
-            <h3>RELEASES</h3>
-            <div class="releases-cover">
-                <a href="https://lachooma.bandcamp.com/album/magic-plant" target="_blank">
-                    <img src="magic_plant.jpg" alt="Magic Plant Single">
-                </a>
-            </div>
-            <div class="releases-cover">
-                <a href="https://lachooma.bandcamp.com/track/huachuma-2" target="_blank">
-                    <img src="huachuma.png" alt="Huachuma Single">
-                </a>
-            </div>
-        </div>
-    </section>
+  <section class="releases-section" id="releases">
+    <div class="releases-content">
+      <h3>RELEASES</h3>
+      <div class="releases-cover">
+        <a href="https://lachooma.bandcamp.com/album/magic-plant" target="_blank">
+          <img src="magic_plant.jpg" alt="La Chooma – Magic Plant Single">
+        </a>
+      </div>
+      <div class="releases-cover">
+        <a href="https://lachooma.bandcamp.com/track/huachuma-2" target="_blank">
+          <img src="huachuma.png" alt="La Chooma – Huachuma Single">
+        </a>
+      </div>
+    </div>
+  </section>
 </body>
 </html>
