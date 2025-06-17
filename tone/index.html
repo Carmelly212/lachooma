@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tone Generator – La Chooma</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Kanit', sans-serif;
+      background-color: #121212;
+      color: white;
+      text-align: center;
+      padding: 50px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+    }
+    label, select, input {
+      font-size: 1.2rem;
+      margin: 10px;
+    }
+    input[type="range"] {
+      width: 300px;
+    }
+    button {
+      font-size: 1.2rem;
+      padding: 10px 20px;
+      margin: 20px 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>La Chooma Tone Generator</h1>
+  <p>
+    Frequency: <input id="freq" type="range" min="100" max="2000" value="440">
+    <span id="freqValue">440</span> Hz
+  </p>
+  <p>
+    Waveform:
+    <select id="waveform">
+      <option value="sine">Sine</option>
+      <option value="square">Square</option>
+      <option value="triangle">Triangle</option>
+      <option value="sawtooth">Sawtooth</option>
+    </select>
+  </p>
+  <button id="start">Start Tone</button>
+  <button id="stop">Stop Tone</button>
+
+  <script>
+    let audioCtx;
+    let oscillator;
+
+    const freqSlider = document.getElementById('freq');
+    const freqValue = document.getElementById('freqValue');
+    const waveformSelect = document.getElementById('waveform');
+    const startBtn = document.getElementById('start');
+    const stopBtn = document.getElementById('stop');
+
+    freqSlider.addEventListener('input', () => {
+      freqValue.textContent = freqSlider.value;
+      if (oscillator) {
+        oscillator.frequency.value = freqSlider.value;
+      }
+    });
+
+    startBtn.onclick = () => {
+      if (audioCtx) return; // Prevent double-play
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      oscillator = audioCtx.createOscillator();
+      oscillator.type = waveformSelect.value;
+      oscillator.frequency.setValueAtTime(freqSlider.value, audioCtx.currentTime);
+      oscillator.connect(audioCtx.destination);
+      oscillator.start();
+    };
+
+    stopBtn.onclick = () => {
+      if (oscillator) {
+        oscillator.stop();
+        oscillator.disconnect();
+        oscillator = null;
+      }
+      if (audioCtx) {
+        audioCtx.close();
+        audioCtx = null;
+      }
+    };
+  </script>
+</body>
+</html>
