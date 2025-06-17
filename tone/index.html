@@ -2,91 +2,187 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Tone Generator – La Chooma</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Chooma – Tone Generator</title>
   <style>
     body {
-      font-family: 'Kanit', sans-serif;
-      background-color: #121212;
+      background: #121212;
       color: white;
+      font-family: 'Kanit', sans-serif;
       text-align: center;
-      padding: 50px;
+      padding: 40px;
     }
     h1 {
       font-size: 2.5rem;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
-    label, select, input {
-      font-size: 1.2rem;
-      margin: 10px;
+    .section {
+      margin: 40px 0;
     }
-    input[type="range"] {
-      width: 300px;
+    .button-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
     }
     button {
-      font-size: 1.2rem;
-      padding: 10px 20px;
-      margin: 20px 10px;
+      padding: 10px 16px;
+      font-size: 1rem;
       cursor: pointer;
+      background: #333;
+      border: none;
+      border-radius: 5px;
+      color: white;
+    }
+    button.active {
+      background: #008080;
+    }
+    select, input[type="range"] {
+      font-size: 1rem;
+      margin: 0 10px;
     }
   </style>
 </head>
 <body>
-  <h1>La Chooma Tone Generator</h1>
-  <p>
-    Frequency: <input id="freq" type="range" min="100" max="2000" value="440">
-    <span id="freqValue">440</span> Hz
-  </p>
-  <p>
-    Waveform:
-    <select id="waveform">
+  <h1>La Chooma – Tone Generator</h1>
+
+  <!-- Volume Control -->
+  <div class="section">
+    <label for="volume">Volume:</label>
+    <input id="volume" type="range" min="0" max="1" step="0.01" value="0.5">
+  </div>
+
+  <!-- Western Notes Section -->
+  <div class="section">
+    <h2>Western Notes</h2>
+    <label>Octave: <select id="octave">
+      <option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option>
+    </select></label>
+    <label>Waveform: <select id="waveform">
       <option value="sine">Sine</option>
       <option value="square">Square</option>
       <option value="triangle">Triangle</option>
       <option value="sawtooth">Sawtooth</option>
-    </select>
-  </p>
-  <button id="start">Start Tone</button>
-  <button id="stop">Stop Tone</button>
+    </select></label>
+    <div class="button-grid" id="western-notes"></div>
+  </div>
+
+  <!-- Rast Section -->
+  <div class="section">
+    <h2>Rast Maqam</h2>
+
+    <div>
+      <h3>Rast (C)</h3>
+      <label>Waveform: <select class="rast-waveform" data-root="C">
+        <option value="sine">Sine</option>
+        <option value="square">Square</option>
+        <option value="triangle">Triangle</option>
+        <option value="sawtooth">Sawtooth</option>
+      </select></label>
+      <div class="button-grid">
+        <button class="rast-button" data-root="C" data-note="E" data-detune="-50">E half♭</button>
+        <button class="rast-button" data-root="C" data-note="B" data-detune="-50">B half♭</button>
+      </div>
+    </div>
+
+    <div>
+      <h3>Rast (F)</h3>
+      <label>Waveform: <select class="rast-waveform" data-root="F">
+        <option value="sine">Sine</option>
+        <option value="square">Square</option>
+        <option value="triangle">Triangle</option>
+        <option value="sawtooth">Sawtooth</option>
+      </select></label>
+      <div class="button-grid">
+        <button class="rast-button" data-root="F" data-note="E" data-detune="-50">E half♭</button>
+        <button class="rast-button" data-root="F" data-note="A" data-detune="-50">A half♭</button>
+      </div>
+    </div>
+  </div>
 
   <script>
-    let audioCtx;
-    let oscillator;
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioContext();
+    const gainNode = audioCtx.createGain();
+    gainNode.connect(audioCtx.destination);
+    gainNode.gain.value = 0.5;
 
-    const freqSlider = document.getElementById('freq');
-    const freqValue = document.getElementById('freqValue');
-    const waveformSelect = document.getElementById('waveform');
-    const startBtn = document.getElementById('start');
-    const stopBtn = document.getElementById('stop');
+    const noteFrequencies = {
+      C: 261.63,
+      'C#': 277.18,
+      D: 293.66,
+      'D#': 311.13,
+      E: 329.63,
+      F: 349.23,
+      'F#': 369.99,
+      G: 392.00,
+      'G#': 415.30,
+      A: 440.00,
+      'A#': 466.16,
+      B: 493.88
+    };
 
-    freqSlider.addEventListener('input', () => {
-      freqValue.textContent = freqSlider.value;
-      if (oscillator) {
-        oscillator.frequency.value = freqSlider.value;
-      }
+    const activeOscillators = new Map();
+
+    document.getElementById('volume').addEventListener('input', (e) => {
+      gainNode.gain.value = parseFloat(e.target.value);
     });
 
-    startBtn.onclick = () => {
-      if (audioCtx) return; // Prevent double-play
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      oscillator = audioCtx.createOscillator();
-      oscillator.type = waveformSelect.value;
-      oscillator.frequency.setValueAtTime(freqSlider.value, audioCtx.currentTime);
-      oscillator.connect(audioCtx.destination);
-      oscillator.start();
-    };
+    // Western note buttons
+    const westernContainer = document.getElementById('western-notes');
+    Object.keys(noteFrequencies).forEach(note => {
+      const btn = document.createElement('button');
+      btn.textContent = note;
+      btn.dataset.note = note;
+      btn.classList.add('western-button');
+      westernContainer.appendChild(btn);
+    });
 
-    stopBtn.onclick = () => {
-      if (oscillator) {
-        oscillator.stop();
-        oscillator.disconnect();
-        oscillator = null;
+    function toggleNote(noteId, frequency, waveform, detune = 0) {
+      if (activeOscillators.has(noteId)) {
+        activeOscillators.get(noteId).osc.stop();
+        activeOscillators.get(noteId).osc.disconnect();
+        activeOscillators.delete(noteId);
+        document.querySelector(`[data-noteid="${noteId}"]`)?.classList.remove('active');
+      } else {
+        const osc = audioCtx.createOscillator();
+        osc.type = waveform;
+        osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+        osc.detune.value = detune;
+        osc.connect(gainNode);
+        osc.start();
+        activeOscillators.set(noteId, { osc });
+        document.querySelector(`[data-noteid="${noteId}"]`)?.classList.add('active');
       }
-      if (audioCtx) {
-        audioCtx.close();
-        audioCtx = null;
-      }
-    };
+    }
+
+    document.querySelectorAll('.western-button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const note = btn.dataset.note;
+        const octave = parseInt(document.getElementById('octave').value);
+        const waveform = document.getElementById('waveform').value;
+        const baseFreq = noteFrequencies[note];
+        const freq = baseFreq * Math.pow(2, octave - 4);
+        const noteId = `western-${note}${octave}`;
+        btn.dataset.noteid = noteId;
+        toggleNote(noteId, freq, waveform);
+      });
+    });
+
+    document.querySelectorAll('.rast-button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const note = btn.dataset.note;
+        const detune = parseInt(btn.dataset.detune);
+        const root = btn.dataset.root;
+        const waveform = document.querySelector(`.rast-waveform[data-root="${root}"]`).value;
+        const baseFreq = noteFrequencies[note];
+        const freq = baseFreq;
+        const noteId = `rast-${root}-${note}-${detune}`;
+        btn.dataset.noteid = noteId;
+        toggleNote(noteId, freq, waveform, detune);
+      });
+    });
   </script>
 </body>
 </html>
