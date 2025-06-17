@@ -18,13 +18,18 @@
     }
     .section {
       margin: 40px 0;
+      border-top: 2px solid #444;
+      padding-top: 20px;
     }
     .button-grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
       gap: 10px;
+      justify-content: center;
       margin-top: 10px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
     }
     button {
       padding: 10px 16px;
@@ -41,6 +46,9 @@
     select, input[type="range"] {
       font-size: 1rem;
       margin: 0 10px;
+    }
+    .sub-controls {
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -75,6 +83,11 @@
     <label>Octave: <select id="rast-octave">
       <option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option>
     </select></label>
+    <label>Duration: <select id="rast-duration">
+      <option value="forever" selected>Forever</option>
+      <option value="5000">5 Seconds</option>
+    </select></label>
+    <label>Volume: <input id="rast-volume" type="range" min="0" max="1" step="0.01" value="0.5"></label>
 
     <script>
       const rastVersions = {
@@ -96,19 +109,14 @@
     gainNode.connect(audioCtx.destination);
     gainNode.gain.value = 0.5;
 
+    const rastGainNode = audioCtx.createGain();
+    rastGainNode.connect(audioCtx.destination);
+    rastGainNode.gain.value = 0.5;
+
     const noteFrequencies = {
-      C: 261.63,
-      'C#': 277.18,
-      D: 293.66,
-      'D#': 311.13,
-      E: 329.63,
-      F: 349.23,
-      'F#': 369.99,
-      G: 392.00,
-      'G#': 415.30,
-      A: 440.00,
-      'A#': 466.16,
-      B: 493.88
+      C: 261.63, 'C#': 277.18, D: 293.66, 'D#': 311.13, E: 329.63,
+      F: 349.23, 'F#': 369.99, G: 392.00, 'G#': 415.30, A: 440.00,
+      'A#': 466.16, B: 493.88
     };
 
     const activeOscillators = new Map();
@@ -117,7 +125,11 @@
       gainNode.gain.value = parseFloat(e.target.value);
     });
 
-    function toggleNote(noteId, frequency, waveform, detune = 0, exclusive = false) {
+    document.getElementById('rast-volume').addEventListener('input', (e) => {
+      rastGainNode.gain.value = parseFloat(e.target.value);
+    });
+
+    function toggleNote(noteId, frequency, waveform, detune = 0, exclusive = false, duration = null, useRastGain = false) {
       if (activeOscillators.has(noteId)) {
         activeOscillators.get(noteId).osc.stop();
         activeOscillators.get(noteId).osc.disconnect();
@@ -135,8 +147,12 @@
         osc.type = waveform;
         osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
         osc.detune.value = detune;
-        osc.connect(gainNode);
+        const targetGain = useRastGain ? rastGainNode : gainNode;
+        osc.connect(targetGain);
         osc.start();
+        if (duration) {
+          setTimeout(() => toggleNote(noteId), duration);
+        }
         activeOscillators.set(noteId, { osc });
         document.querySelector(`[data-noteid="${noteId}"]`)?.classList.add('active');
       }
@@ -204,8 +220,10 @@
         const baseFreq = noteFrequencies[note];
         const freq = baseFreq * Math.pow(2, octave - 4);
         const noteId = `rast-${root}-${note}-${detune}`;
+        const durationOption = document.getElementById('rast-duration').value;
+        const duration = durationOption === 'forever' ? null : parseInt(durationOption);
         e.target.dataset.noteid = noteId;
-        toggleNote(noteId, freq, waveform, detune, true);
+        toggleNote(noteId, freq, waveform, detune, true, duration, true);
       }
     });
   </script>
