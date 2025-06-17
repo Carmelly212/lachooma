@@ -66,39 +66,27 @@
       <option value="sawtooth">Sawtooth</option>
     </select></label>
     <div class="button-grid" id="western-notes"></div>
+    <button id="stop-all">Stop All</button>
   </div>
 
   <!-- Rast Section -->
   <div class="section">
     <h2>Rast Maqam</h2>
+    <label>Octave: <select id="rast-octave">
+      <option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option>
+    </select></label>
 
-    <div>
-      <h3>Rast (C)</h3>
-      <label>Waveform: <select class="rast-waveform" data-root="C">
-        <option value="sine">Sine</option>
-        <option value="square">Square</option>
-        <option value="triangle">Triangle</option>
-        <option value="sawtooth">Sawtooth</option>
-      </select></label>
-      <div class="button-grid">
-        <button class="rast-button" data-root="C" data-note="E" data-detune="-50">E half♭</button>
-        <button class="rast-button" data-root="C" data-note="B" data-detune="-50">B half♭</button>
-      </div>
-    </div>
+    <script>
+      const rastVersions = {
+        C: ["E", "B"],
+        F: ["E", "A"],
+        E: ["G#", "D#"],
+        D: ["F#", "C#"],
+        G: ["B", "F#"]
+      };
+    </script>
 
-    <div>
-      <h3>Rast (F)</h3>
-      <label>Waveform: <select class="rast-waveform" data-root="F">
-        <option value="sine">Sine</option>
-        <option value="square">Square</option>
-        <option value="triangle">Triangle</option>
-        <option value="sawtooth">Sawtooth</option>
-      </select></label>
-      <div class="button-grid">
-        <button class="rast-button" data-root="F" data-note="E" data-detune="-50">E half♭</button>
-        <button class="rast-button" data-root="F" data-note="A" data-detune="-50">A half♭</button>
-      </div>
-    </div>
+    <div id="rast-versions"></div>
   </div>
 
   <script>
@@ -129,23 +117,20 @@
       gainNode.gain.value = parseFloat(e.target.value);
     });
 
-    // Western note buttons
-    const westernContainer = document.getElementById('western-notes');
-    Object.keys(noteFrequencies).forEach(note => {
-      const btn = document.createElement('button');
-      btn.textContent = note;
-      btn.dataset.note = note;
-      btn.classList.add('western-button');
-      westernContainer.appendChild(btn);
-    });
-
-    function toggleNote(noteId, frequency, waveform, detune = 0) {
+    function toggleNote(noteId, frequency, waveform, detune = 0, exclusive = false) {
       if (activeOscillators.has(noteId)) {
         activeOscillators.get(noteId).osc.stop();
         activeOscillators.get(noteId).osc.disconnect();
         activeOscillators.delete(noteId);
         document.querySelector(`[data-noteid="${noteId}"]`)?.classList.remove('active');
       } else {
+        if (exclusive) {
+          [...activeOscillators.keys()].forEach(id => {
+            if (id.startsWith("rast-")) {
+              toggleNote(id);
+            }
+          });
+        }
         const osc = audioCtx.createOscillator();
         osc.type = waveform;
         osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
@@ -156,6 +141,27 @@
         document.querySelector(`[data-noteid="${noteId}"]`)?.classList.add('active');
       }
     }
+
+    function stopAllNotes() {
+      activeOscillators.forEach(({ osc }, id) => {
+        osc.stop();
+        osc.disconnect();
+        document.querySelector(`[data-noteid="${id}"]`)?.classList.remove('active');
+      });
+      activeOscillators.clear();
+    }
+
+    document.getElementById('stop-all').addEventListener('click', stopAllNotes);
+
+    // Western note buttons
+    const westernContainer = document.getElementById('western-notes');
+    Object.keys(noteFrequencies).forEach(note => {
+      const btn = document.createElement('button');
+      btn.textContent = note;
+      btn.dataset.note = note;
+      btn.classList.add('western-button');
+      westernContainer.appendChild(btn);
+    });
 
     document.querySelectorAll('.western-button').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -170,18 +176,37 @@
       });
     });
 
-    document.querySelectorAll('.rast-button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const note = btn.dataset.note;
-        const detune = parseInt(btn.dataset.detune);
-        const root = btn.dataset.root;
+    // Rast notes with all roots
+    const rastContainer = document.getElementById('rast-versions');
+    Object.entries(rastVersions).forEach(([root, halfFlats]) => {
+      const section = document.createElement('div');
+      section.innerHTML = `
+        <h3>Rast (${root})</h3>
+        <label>Waveform: <select class="rast-waveform" data-root="${root}">
+          <option value="sine">Sine</option>
+          <option value="square">Square</option>
+          <option value="triangle">Triangle</option>
+          <option value="sawtooth">Sawtooth</option>
+        </select></label>
+        <div class="button-grid">
+          ${halfFlats.map(note => `<button class="rast-button" data-root="${root}" data-note="${note}" data-detune="-50">${note} half♭</button>`).join('')}
+        </div>`;
+      rastContainer.appendChild(section);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('rast-button')) {
+        const note = e.target.dataset.note;
+        const detune = -50;
+        const root = e.target.dataset.root;
         const waveform = document.querySelector(`.rast-waveform[data-root="${root}"]`).value;
+        const octave = parseInt(document.getElementById('rast-octave').value);
         const baseFreq = noteFrequencies[note];
-        const freq = baseFreq;
+        const freq = baseFreq * Math.pow(2, octave - 4);
         const noteId = `rast-${root}-${note}-${detune}`;
-        btn.dataset.noteid = noteId;
-        toggleNote(noteId, freq, waveform, detune);
-      });
+        e.target.dataset.noteid = noteId;
+        toggleNote(noteId, freq, waveform, detune, true);
+      }
     });
   </script>
 </body>
