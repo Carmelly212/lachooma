@@ -18,15 +18,19 @@
   <meta property="og:type"        content="website">
   <meta property="og:url"         content="https://lachooma.com/">
   <meta property="og:title"       content="La Chooma – Tribal Latin Band">
-  <meta property="og:description" content="La Chooma’s Afro-Latin grooves and desert vibes—debut album coming Fall 2025.">
-  <meta property="og:image"       content="https://lachooma.com/lachooma_main.jpg">
+  <meta property="og:description" content="La Chooma’s Afro-Latin grooves and desert vibes—debut album out now.">
+  <meta property="og:image"       content="https://lachooma.com/la_chooma_labum.jpg">
+  <meta property="og:image:alt"   content="La Chooma — Local Spirits (Album cover)">
 
   <!-- ===== Twitter Card ===== -->
   <meta name="twitter:card"        content="summary_large_image">
   <meta name="twitter:site"        content="@LaChooma">
   <meta name="twitter:title"       content="La Chooma – Tribal Latin Band">
-  <meta name="twitter:description" content="Alon Carmelly’s Tribal Latin Band playing Afro-Latin grooves with desert vibes. Debut album Fall 2025.">
-  <meta name="twitter:image"       content="https://lachooma.com/lachooma_main.jpg">
+  <meta name="twitter:description" content="Alon Carmelly’s Tribal Latin Band playing Afro-Latin grooves with desert vibes. Album out now.">
+  <meta name="twitter:image"       content="https://lachooma.com/la_chooma_labum.jpg">
+
+  <!-- (Optional) Fallback favicon to album cover -->
+  <link rel="icon" href="la_chooma_labum.jpg">
 
   <!-- ===== Structured Data (JSON-LD) ===== -->
   <script type="application/ld+json">
@@ -50,259 +54,207 @@
   <!-- ===== Google Font: Kanit ===== -->
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&display=swap" rel="stylesheet">
 
-  <!-- ===== Your Styles ===== -->
+  <!-- ===== Styles ===== -->
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-dark: #0e0e0e;
+      --bg-darker: #121212;
+      --bg-card: rgba(255,255,255,0.06);
+      --bg-card-hover: rgba(255,255,255,0.12);
+      --border: rgba(255,255,255,0.16);
+      --text: #fff;
+      --muted: rgba(255,255,255,0.8);
     }
-    body, html {
-      font-family: 'Kanit', sans-serif;
-      scroll-behavior: smooth;
-    }
+    body, html { font-family: 'Kanit', sans-serif; scroll-behavior: smooth; color: var(--text); background: var(--bg-dark); }
+    a { color: inherit; text-decoration: none; }
+
     .background {
       background-image: url('lachooma_main.jpg');
       background-size: cover;
       background-position: center;
       height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      text-align: center;
-      position: relative;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center; position: relative; color: white;
     }
-    .overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      z-index: 1;
-    }
+    .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 1; }
+
     .label-logo {
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      max-width: 80px;
-      max-height: 80px;
-      z-index: 2;
-      filter: invert(1);
-      opacity: 0.7;
-    }
-    .content {
-      position: relative;
-      z-index: 2;
-      max-width: 800px;
-      width: 100%;
-      padding: 0 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .band-name {
-      font-family: 'Kanit', sans-serif;
-      font-weight: 700;
-      font-size: 4rem;
-      margin-bottom: 20px;
-      text-transform: uppercase;
-      letter-spacing: 5px;
-      text-align: center;
-    }
-    .tagline {
-      font-family: 'Kanit', sans-serif;
-      font-weight: 300;
-      font-size: 1.5rem;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-    .contact-info {
-      position: absolute;
-      bottom: 20px;
-      left: 0;
-      width: 100%;
-      text-align: center;
-      color: white;
-      z-index: 2;
+      position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+      max-width: 80px; max-height: 80px; z-index: 2; filter: invert(1); opacity: 0.7;
     }
 
-    /* Social Links Boxes */
-    .social-boxes {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      flex-wrap: wrap;
-      width: 100%;
-      max-width: 800px;
-      margin-top: 30px;
+    .content { position: relative; z-index: 2; max-width: 980px; width: 100%; padding: 0 20px; display: flex; flex-direction: column; align-items: center; }
+    .band-name { font-weight: 700; font-size: 4rem; margin-bottom: 16px; letter-spacing: 5px; text-transform: uppercase; }
+    .tagline { font-weight: 300; font-size: 1.5rem; margin-bottom: 22px; color: var(--muted); }
+
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+    .btn {
+      display: inline-block; padding: 12px 22px; background-color: var(--bg-card);
+      border: 1px solid var(--border); color: var(--text); text-transform: uppercase;
+      transition: transform .2s ease, background-color .2s ease, border-color .2s ease;
+      border-radius: 999px; font-weight: 400; letter-spacing: 0.06em;
+    }
+    .btn:hover { background-color: var(--bg-card-hover); transform: translateY(-1px); border-color: rgba(255,255,255,0.28); }
+
+    /* Clean social row layout */
+    .social-row {
+      width: 100%; max-width: 980px; margin-top: 6px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(140px, 1fr));
+      gap: 12px;
+      justify-items: center;
     }
     .social-box {
-      display: inline-block;
-      padding: 10px 20px;
-      background-color: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: white;
-      text-decoration: none;
-      text-transform: uppercase;
-      transition: all 0.3s ease;
-      margin: 5px;
-      text-align: center;
+      width: 100%; text-align: center;
+      padding: 12px 18px; background-color: var(--bg-card);
+      border: 1px solid var(--border); border-radius: 999px; text-transform: uppercase;
+      transition: transform .2s ease, background-color .2s ease, border-color .2s ease;
     }
-    .social-box:hover {
-      background-color: rgba(255,255,255,0.2);
-    }
+    .social-box:hover { background-color: var(--bg-card-hover); transform: translateY(-1px); border-color: rgba(255,255,255,0.28); }
 
-    /* Bio Section Styles */
-    .bio-section {
-      background-color: #121212;
-      color: white;
-      padding: 100px 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .bio-content {
-      max-width: 800px;
-      width: 100%;
-      margin: 0 auto;
-      line-height: 1.6;
-      text-align: center;
-    }
-    .bio-content h2 {
-      margin-bottom: 30px;
-      font-family: 'Kanit', sans-serif;
-      font-weight: 700;
-      font-size: 2.5rem;
-      text-align: center;
-    }
-    .bio-content p {
-      margin-bottom: 20px;
-      font-family: 'Kanit', sans-serif;
-      font-weight: 300;
-      font-size: 1.1rem;
-      text-align: center;
-    }
+    /* Bio Section */
+    .bio-section { background-color: var(--bg-darker); padding: 90px 20px; display: flex; justify-content: center; }
+    .bio-content { max-width: 900px; width: 100%; margin: 0 auto; line-height: 1.7; text-align: center; }
+    .bio-content h2 { margin-bottom: 18px; font-weight: 700; font-size: 2.4rem; }
+    .bio-content p  { margin-bottom: 14px; font-weight: 300; font-size: 1.1rem; color: var(--muted); }
 
-    /* Releases Section */
-    .releases-section {
-      background-color: #1a1a1a;
-      color: white;
-      padding: 100px 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
-    .releases-content {
-      max-width: 800px;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .releases-content h3 {
-      font-family: 'Kanit', sans-serif;
-      font-weight: 700;
-      font-size: 2rem;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-    .releases-cover {
-      max-width: 400px;
-      width: 100%;
-      margin: 0 auto 30px;
-      transition: transform 0.3s ease;
-    }
-    .releases-cover:hover {
-      transform: scale(1.05);
-    }
-    .releases-cover a {
-      display: block;
-      width: 100%;
-    }
-    .releases-cover img {
-      width: 100%;
-      max-width: 100%;
-      border-radius: 10px;
-    }
+    /* Releases */
+    .releases-section { background-color: #1a1a1a; padding: 90px 20px; }
+    .releases-content { max-width: 1100px; margin: 0 auto; }
 
-    /* Mobile Responsiveness */
+    .releases-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
+    .releases-title { font-weight: 700; font-size: 2rem; }
+
+    .featured {
+      display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; align-items: center;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 16px; padding: 18px;
+    }
+    .featured img { width: 100%; border-radius: 12px; display: block; }
+    .featured h4 { font-size: 1.6rem; margin-bottom: 8px; }
+    .featured p  { color: var(--muted); margin-bottom: 16px; }
+
+    .tiles { margin-top: 32px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .tile { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: transform .2s ease, border-color .2s ease; }
+    .tile:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.28); }
+    .tile img { width: 100%; display: block; aspect-ratio: 1/1; object-fit: cover; }
+    .tile .meta { padding: 12px; }
+    .tile .name { font-weight: 600; margin-bottom: 4px; }
+    .tile .sub  { font-size: .9rem; color: var(--muted); }
+
+    /* Responsive */
+    @media (max-width: 1060px) { .social-row { grid-template-columns: repeat(4, minmax(140px, 1fr)); } }
+    @media (max-width: 820px)  { .social-row { grid-template-columns: repeat(3, minmax(140px, 1fr)); } }
+    @media (max-width: 620px)  { .social-row { grid-template-columns: repeat(2, minmax(140px, 1fr)); } }
+
+    @media (max-width: 1024px) {
+      .tiles { grid-template-columns: repeat(2, 1fr); }
+      .featured { grid-template-columns: 1fr; }
+    }
     @media (max-width: 768px) {
-      .band-name {
-        font-size: 2.5rem;
-      }
-      .tagline {
-        font-size: 1.2rem;
-      }
-      .social-boxes {
-        flex-direction: column;
-        align-items: center;
-      }
-      .social-box {
-        width: 80%;
-        text-align: center;
-      }
-      .label-logo {
-        max-width: 60px;
-        max-height: 60px;
-      }
-      .bio-content h2 {
-        font-size: 2rem;
-      }
-      .bio-content p {
-        font-size: 1rem;
-      }
+      .band-name { font-size: 2.6rem; }
+      .tagline { font-size: 1.1rem; }
+      .label-logo { max-width: 60px; max-height: 60px; }
+      .bio-content h2 { font-size: 2rem; }
     }
   </style>
 </head>
 <body>
+  <!-- ===== HERO ===== -->
   <div class="background" id="home">
     <div class="overlay"></div>
-    <img src="batov.png" alt="Batov Records" class="label-logo">
+    <img src="batov.png" alt="Batov Records" class="label-logo" />
+
     <div class="content">
       <h1 class="band-name">La Chooma</h1>
       <p class="tagline">DEBUT ALBUM COMING FALL 2025</p>
-      <div class="social-boxes">
-        <a href="https://www.instagram.com/la_chooma/" target="_blank" class="social-box">Instagram</a>
-        <a href="https://www.facebook.com/lachooma/" target="_blank" class="social-box">Facebook</a>
-        <a href="https://www.youtube.com/@La_chooma" target="_blank" class="social-box">YouTube</a>
-        <a href="https://open.spotify.com/artist/2zQH0WtJJBlDecHmEW7lNV" target="_blank" class="social-box">Spotify</a>
-        <a href="https://lachooma.bandcamp.com/" target="_blank" class="social-box">Bandcamp</a>
+
+      <!-- Primary action -->
+      <div class="actions">
+        <a href="#releases" class="btn" aria-label="Jump to Releases">Releases</a>
+      </div>
+
+      <!-- Clean, even social layout -->
+      <div class="social-row" aria-label="Social Links">
+        <a href="https://www.instagram.com/la_chooma/" target="_blank" rel="noopener" class="social-box">Instagram</a>
+        <a href="https://www.facebook.com/lachooma/" target="_blank" rel="noopener" class="social-box">Facebook</a>
+        <a href="https://www.youtube.com/@La_chooma" target="_blank" rel="noopener" class="social-box">YouTube</a>
+        <a href="https://open.spotify.com/artist/2zQH0WtJJBlDecHmEW7lNV" target="_blank" rel="noopener" class="social-box">Spotify</a>
+        <a href="https://lachooma.bandcamp.com/" target="_blank" rel="noopener" class="social-box">Bandcamp</a>
       </div>
     </div>
-    <!-- <div class="contact-info">
-      Contact Management: alon212@gmail.com
-    </div> -->
   </div>
 
+  <!-- ===== BIO ===== -->
   <section class="bio-section" id="bio">
     <div class="bio-content">
       <h2>About La Chooma</h2>
       <p>
-        La Chooma, Alon Carmelly's Tribal Latin Band, plays uncompromising Afro-Latin grooves while blending sounds from the realms of psychedelia, deep jungles, and the North African desert. Gentle melodies, warm synthesizers, and a comforting desert vibe create a colorful and unique sound that effortlessly gets you dancing away.
+        La Chooma, Alon Carmelly's Tribal Latin Band, plays uncompromising Afro-Latin grooves while blending sounds from the realms of psychedelia, deep jungles, and the North African desert.
       </p>
       <p>
-        Preparing for their debut album named "Local Spirits" with the London-based label Batov Records in the fall of 2025. Alon Carmelly, formerly the double bass player for 'The Apples,' leads their live performances with organic energy and authenticity, reflecting a journey of creative evolution from a trio to a dynamic six-member ensemble.
+        La Chooma’s self-titled debut for Batov Records. Drawing on Moroccan Gnawa, Colombian cumbia, Jamaica dub & roots, and cosmic jazz, the six-piece ensemble create deep, hypnotic music rooted in global traditions and shaped for contemporary dancefloors.
       </p>
     </div>
   </section>
 
-  <section class="releases-section" id="releases">
+  <!-- ===== RELEASES ===== -->
+  <section class="releases-section" id="releases" aria-label="Releases">
     <div class="releases-content">
-      <h3>RELEASES</h3>
-      <div class="releases-cover">
-        <a href="https://lachooma.bandcamp.com/album/magic-plant" target="_blank">
-          <img src="magic_plant.jpg" alt="La Chooma – Magic Plant Single">
-        </a>
+      <div class="releases-header">
+        <h3 class="releases-title">RELEASES</h3>
       </div>
-      <div class="releases-cover">
-        <a href="https://lachooma.bandcamp.com/track/huachuma-2" target="_blank">
-          <img src="huachuma.png" alt="La Chooma – Huachuma Single">
+
+      <!-- Featured: Local Spirits (Album) -->
+      <article class="featured">
+        <a href="https://lachooma.bandcamp.com/album/local-spirits" target="_blank" rel="noopener" aria-label="Open Local Spirits on Bandcamp">
+          <img src="la_chooma_labum.jpg" alt="La Chooma — Local Spirits (Album cover)" />
+        </a>
+        <div>
+          <h4>Local Spirits (Album)</h4>
+          <p>Out now • Batov Records</p>
+          <div class="actions">
+            <a class="btn" href="https://lachooma.bandcamp.com/album/local-spirits" target="_blank" rel="noopener">Listen on Bandcamp</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Grid of 4 smaller releases -->
+      <div class="tiles" role="list">
+        <!-- Magic Plant -->
+        <a role="listitem" class="tile" href="https://lachooma.bandcamp.com/album/magic-plant" target="_blank" rel="noopener" aria-label="Open Magic Plant on Bandcamp">
+          <img src="magic_plant.jpg" alt="Magic Plant single cover" />
+          <div class="meta">
+            <div class="name">Magic Plant</div>
+            <div class="sub">Single · Bandcamp</div>
+          </div>
+        </a>
+
+        <!-- Huachuma — Spotify -->
+        <a role="listitem" class="tile" href="https://open.spotify.com/track/5UqcDS2aF0pNIdBJPKrq8Q?si=7f4c5a9765324179" target="_blank" rel="noopener" aria-label="Play Huachuma on Spotify">
+          <img src="huachuma.png" alt="Huachuma single cover" />
+          <div class="meta">
+            <div class="name">Huachuma</div>
+            <div class="sub">Single · Spotify</div>
+          </div>
+        </a>
+
+        <!-- Cozumel -->
+        <a role="listitem" class="tile" href="https://open.spotify.com/album/4CgY4HqXnMutDMMzZ7Lh7A?si=QRw-BjnqQ9WbeGo6a6i52g" target="_blank" rel="noopener" aria-label="Play Cozumel on Spotify">
+          <img src="cozumel.jpeg" alt="Cozumel cover art" />
+          <div class="meta">
+            <div class="name">Cozumel</div>
+            <div class="sub">Single · Spotify</div>
+          </div>
+        </a>
+
+        <!-- Lonely (file named lonley.jpeg per your path) -->
+        <a role="listitem" class="tile" href="https://open.spotify.com/album/7xSuseZZMfKMKBjtCu2TXw?si=JEj6KiPrR_OsRoNMm3UhLw" target="_blank" rel="noopener" aria-label="Play Lonely on Spotify">
+          <img src="lonley.jpeg" alt="Lonely cover art" />
+          <div class="meta">
+            <div class="name">Lonely</div>
+            <div class="sub">Single · Spotify</div>
+          </div>
         </a>
       </div>
     </div>
