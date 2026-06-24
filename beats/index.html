@@ -145,9 +145,49 @@
       font-weight: 600;
     }
 
+    .note-octave-label {
+      color: #9ca3af;
+      font-size: 12px;
+      font-weight: 600;
+      margin: 4px 0 6px;
+    }
+
     input[type="range"] {
       width: 100%;
       accent-color: #0ea5e9;
+      height: 14px;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 4px;
+      border-radius: 999px;
+      background: #2b2f36;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #0ea5e9;
+      margin-top: -4px;
+      border: none;
+    }
+
+    input[type="range"]::-moz-range-track {
+      height: 4px;
+      border-radius: 999px;
+      background: #2b2f36;
+      border: none;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #0ea5e9;
+      border: none;
     }
 
     #stereoViz {
@@ -198,24 +238,11 @@
     </section>
 
     <section class="card">
-      <label>Stereo carrier map</label>
-      <svg id="stereoViz" viewBox="0 0 300 110" xmlns="http://www.w3.org/2000/svg" aria-label="Stereo field visualization">
-        <line x1="150" y1="10" x2="150" y2="100" stroke="#3f4653" stroke-width="0.8"></line>
-        <line x1="10" y1="55" x2="290" y2="55" stroke="#2b313d" stroke-width="0.6"></line>
-        <text x="12" y="26" fill="#6b7280" font-size="10">Left ear lane</text>
-        <text x="12" y="86" fill="#6b7280" font-size="10">Right ear lane</text>
-        <text x="20" y="104" fill="#6b7280" font-size="10">L</text>
-        <text x="280" y="104" fill="#6b7280" font-size="10">R</text>
-      </svg>
-      <div class="legend">
-        <span>Upper dots: left-ear carriers</span>
-        <span>Lower dots: right-ear carriers</span>
-      </div>
-    </section>
-
-    <section class="card">
-      <label>Base note (C through B)</label>
-      <div class="grid" id="noteGrid"></div>
+      <label>Base note (low + high octave)</label>
+      <div class="note-octave-label">Low octave</div>
+      <div class="grid" id="noteGridLow"></div>
+      <div class="note-octave-label">High octave</div>
+      <div class="grid" id="noteGridHigh"></div>
     </section>
 
     <section class="card">
@@ -232,9 +259,9 @@
       <div class="slider-group">
         <div class="slider-row">
           <span>Carrier count</span>
-          <span id="carrierCountLabel">4</span>
+          <span id="carrierCountLabel">1</span>
         </div>
-        <input id="carrierCountSlider" type="range" min="1" max="8" value="4" step="1">
+        <input id="carrierCountSlider" type="range" min="1" max="8" value="1" step="1">
       </div>
     </section>
 
@@ -242,9 +269,9 @@
       <div class="slider-group">
         <div class="slider-row">
           <span>Stereo width</span>
-          <span id="stereoLabel">50%</span>
+          <span id="stereoLabel">90%</span>
         </div>
-        <input id="stereoSlider" type="range" min="0" max="100" value="50">
+        <input id="stereoSlider" type="range" min="0" max="100" value="90">
       </div>
 
       <div class="slider-group">
@@ -268,6 +295,22 @@
       <label>Audio activity</label>
       <canvas id="waveCanvas" aria-label="Audio waveform"></canvas>
     </section>
+
+    <section class="card">
+      <label>Stereo carrier map</label>
+      <svg id="stereoViz" viewBox="0 0 300 110" xmlns="http://www.w3.org/2000/svg" aria-label="Stereo field visualization">
+        <line x1="150" y1="10" x2="150" y2="100" stroke="#3f4653" stroke-width="0.8"></line>
+        <line x1="10" y1="55" x2="290" y2="55" stroke="#2b313d" stroke-width="0.6"></line>
+        <text x="12" y="26" fill="#6b7280" font-size="10">Left ear lane</text>
+        <text x="12" y="86" fill="#6b7280" font-size="10">Right ear lane</text>
+        <text x="20" y="104" fill="#6b7280" font-size="10">L</text>
+        <text x="280" y="104" fill="#6b7280" font-size="10">R</text>
+      </svg>
+      <div class="legend">
+        <span>Upper dots: left-ear carriers</span>
+        <span>Lower dots: right-ear carriers</span>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -280,7 +323,7 @@
       1: {
         label: 'Delta | Lethargy',
         variants: {
-          a: { carriers: 4, spread: 0.42, semitones: [-9, -3, 2, 7] },
+          a: { carriers: 4, spread: 0.2, semitones: [-2, -1, 1, 2] },
           b: { carriers: 5, spread: 0.56, semitones: [-10, -5, 0, 5, 10] },
           c: { carriers: 6, spread: 0.72, semitones: [-12, -7, -2, 2, 7, 12] },
           d: { carriers: 4, spread: 0.88, semitones: [-11, -4, 4, 11] }
@@ -289,7 +332,7 @@
       2: {
         label: 'Delta | Deep Sleep',
         variants: {
-          a: { carriers: 4, spread: 0.4, semitones: [-8, -2, 3, 9] },
+          a: { carriers: 4, spread: 0.22, semitones: [-2, -1, 0, 1] },
           b: { carriers: 5, spread: 0.58, semitones: [-10, -5, 0, 5, 10] },
           c: { carriers: 6, spread: 0.74, semitones: [-12, -7, -2, 2, 7, 12] },
           d: { carriers: 4, spread: 0.9, semitones: [-12, -3, 3, 12] }
@@ -298,10 +341,10 @@
       4: {
         label: 'Theta | Drowsy',
         variants: {
-          a: { carriers: 4, spread: 0.45, semitones: [-7, -1, 4, 9] },
-          b: { carriers: 5, spread: 0.6, semitones: [-9, -4, 0, 4, 9] },
-          c: { carriers: 6, spread: 0.72, semitones: [-11, -6, -2, 2, 6, 11] },
-          d: { carriers: 4, spread: 0.9, semitones: [-10, -3, 3, 10] }
+          a: { carriers: 4, spread: 0.4, semitones: [-6, -2, 2, 6] },
+          b: { carriers: 5, spread: 0.26, semitones: [-2, -1, 0, 1, 2] },
+          c: { carriers: 6, spread: 0.76, semitones: [-10, -6, -2, 2, 6, 10] },
+          d: { carriers: 8, spread: 0.96, semitones: [-12, -8, -4, 0, 4, 8, 12, 16] }
         }
       },
       6: {
@@ -317,7 +360,7 @@
         label: 'Alpha | Relaxed',
         variants: {
           a: { carriers: 4, spread: 0.4, semitones: [-6, -1, 4, 8] },
-          b: { carriers: 5, spread: 0.56, semitones: [-8, -3, 0, 3, 8] },
+          b: { carriers: 5, spread: 0.3, semitones: [-3, -1, 0, 1, 3] },
           c: { carriers: 6, spread: 0.7, semitones: [-10, -6, -2, 2, 6, 10] },
           d: { carriers: 4, spread: 0.88, semitones: [-9, -2, 2, 9] }
         }
@@ -361,13 +404,13 @@
     };
 
     const state = {
-      baseNote: 0,
+      baseNote: 3,
       beatHz: 0,
       variant: 'a',
-      stereoWidth: 0.5,
+      stereoWidth: 0.9,
       volumeDb: -6,
       glideMs: 300,
-      carrierCountOverride: 0,
+      carrierCountOverride: 1,
       isPlaying: false,
       audio: null,
       analyserData: null,
@@ -469,9 +512,15 @@
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       const analyser = ctx.createAnalyser();
       analyser.fftSize = 1024;
+      analyser.channelCount = 2;
+      analyser.channelCountMode = 'explicit';
+      analyser.channelInterpretation = 'speakers';
 
       const master = ctx.createGain();
       master.gain.value = dbToGain(state.volumeDb);
+      master.channelCount = 2;
+      master.channelCountMode = 'explicit';
+      master.channelInterpretation = 'speakers';
       analyser.connect(master);
       master.connect(ctx.destination);
 
@@ -483,6 +532,12 @@
         { gain: ctx.createGain(), voices: [] },
         { gain: ctx.createGain(), voices: [] }
       ];
+      state.buses[0].gain.channelCount = 2;
+      state.buses[0].gain.channelCountMode = 'explicit';
+      state.buses[0].gain.channelInterpretation = 'speakers';
+      state.buses[1].gain.channelCount = 2;
+      state.buses[1].gain.channelCountMode = 'explicit';
+      state.buses[1].gain.channelInterpretation = 'speakers';
       state.buses[0].gain.gain.value = 0;
       state.buses[1].gain.gain.value = 0;
       state.buses[0].gain.connect(analyser);
@@ -502,11 +557,12 @@
     }
 
     function lanePan(position, spread, width) {
-      const side = 0.5 * width;
-      const shape = position * spread * width * 0.7;
+      // Keep left-ear and right-ear carriers in separate stereo lanes by default.
+      const lane = clamp((0.2 + (0.75 * width)), 0, 1);
+      const shape = position * spread * width * 0.35;
       return {
-        left: clamp(-side + shape, -1, 1),
-        right: clamp(side + shape, -1, 1)
+        left: clamp(-lane + shape, -1, 1),
+        right: clamp(lane + shape, -1, 1)
       };
     }
 
@@ -746,8 +802,8 @@
 
     function setBaseNote(noteIndex) {
       state.baseNote = noteIndex;
-      document.querySelectorAll('[data-note]').forEach((btn) => {
-        btn.classList.toggle('active', Number(btn.dataset.note) === noteIndex);
+      document.querySelectorAll('[data-note-index]').forEach((btn) => {
+        btn.classList.toggle('active', Number(btn.dataset.noteIndex) === noteIndex);
       });
 
       if (state.isPlaying) glideRetuneCurrentBaseNote();
@@ -891,15 +947,28 @@
     }
 
     function buildButtonGrids() {
-      const noteGrid = document.getElementById('noteGrid');
+      const noteGridLow = document.getElementById('noteGridLow');
+      const noteGridHigh = document.getElementById('noteGridHigh');
+
       NOTE_NAMES.forEach((name, idx) => {
         const b = document.createElement('button');
         b.type = 'button';
-        b.dataset.note = String(idx);
+        b.dataset.noteIndex = String(idx);
         b.textContent = name;
         if (idx === state.baseNote) b.classList.add('active');
         b.addEventListener('click', () => setBaseNote(idx));
-        noteGrid.appendChild(b);
+        noteGridLow.appendChild(b);
+      });
+
+      NOTE_NAMES.forEach((name, idx) => {
+        const noteIndex = idx + 12;
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.dataset.noteIndex = String(noteIndex);
+        b.textContent = name;
+        if (noteIndex === state.baseNote) b.classList.add('active');
+        b.addEventListener('click', () => setBaseNote(noteIndex));
+        noteGridHigh.appendChild(b);
       });
 
       const freqGrid = document.getElementById('freqGrid');
@@ -985,7 +1054,9 @@
 
     buildButtonGrids();
     wireControls();
+    setStereoWidth(90);
     setGlide(300);
+    setCarrierCount(1);
     setBeatPreset(4);
     updateHeaderLabel();
     renderStereoViz();
