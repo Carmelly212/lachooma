@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binaural Beats Generator</title>
+  <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #171717;
+      color: #f5f5f5;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      color: #9ca3af;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: #111214;
+      border: 1px solid #2b2f36;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      color: #9ca3af;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
+      gap: 7px;
+    }
+
+    .grid-wide {
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+
+    button {
+      border: 1px solid #3a404a;
+      background: #242933;
+      color: #e5e7eb;
+      padding: 9px 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover {
+      background: #2d3340;
+      border-color: #4b5563;
+    }
+
+    button.active {
+      background: #0ea5e9;
+      border-color: #0ea5e9;
+      color: white;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .status {
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    #freqLabel {
+      color: #d1d5db;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .play {
+      min-width: 92px;
+      padding: 10px 12px;
+      font-weight: 700;
+      border-color: #0ea5e9;
+      background: #0ea5e9;
+      color: #ffffff;
+    }
+
+    .play:hover {
+      background: #0284c7;
+      border-color: #0284c7;
+    }
+
+    .record {
+      min-width: 100px;
+      padding: 10px 12px;
+      font-weight: 700;
+      border-color: #ef4444;
+      background: #ef4444;
+      color: #ffffff;
+    }
+
+    .record:hover {
+      background: #dc2626;
+      border-color: #dc2626;
+    }
+
+    .record.active {
+      background: #7f1d1d;
+      border-color: #fecaca;
+    }
+
+    .slider-group {
+      margin-bottom: 12px;
+    }
+
+    .slider-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 7px;
+      color: #9ca3af;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #0ea5e9;
+    }
+
+    #stereoViz {
+      width: 100%;
+      height: 110px;
+      border-radius: 10px;
+      border: 1px solid #2b2f36;
+      background: linear-gradient(90deg, #1f232b 0%, #161a20 50%, #1f232b 100%);
+      display: block;
+    }
+
+    #waveCanvas {
+      width: 100%;
+      height: 120px;
+      border-radius: 10px;
+      border: 1px solid #2b2f36;
+      background: #0d0f13;
+      display: block;
+    }
+
+    .legend {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 14px; }
+      h1 { font-size: 23px; }
+      .row { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Binaural Beats Generator</h1>
+    <p class="subtitle">4-6 sine carriers per ear, 4 variants per mood, with 300ms crossfades and MP3 recording.</p>
+
+    <section class="card">
+      <label>Stereo carrier map</label>
+      <svg id="stereoViz" viewBox="0 0 300 110" xmlns="http://www.w3.org/2000/svg" aria-label="Stereo field visualization">
+        <line x1="150" y1="10" x2="150" y2="100" stroke="#3f4653" stroke-width="0.8"></line>
+        <line x1="10" y1="55" x2="290" y2="55" stroke="#2b313d" stroke-width="0.6"></line>
+        <text x="12" y="26" fill="#6b7280" font-size="10">Left ear lane</text>
+        <text x="12" y="86" fill="#6b7280" font-size="10">Right ear lane</text>
+        <text x="20" y="104" fill="#6b7280" font-size="10">L</text>
+        <text x="280" y="104" fill="#6b7280" font-size="10">R</text>
+      </svg>
+      <div class="legend">
+        <span>Upper dots: left-ear carriers</span>
+        <span>Lower dots: right-ear carriers</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <label>Base note (C through B)</label>
+      <div class="grid" id="noteGrid"></div>
+    </section>
+
+    <section class="card">
+      <label>Target beat frequency (Hz + mood)</label>
+      <div class="grid grid-wide" id="freqGrid"></div>
+    </section>
+
+    <section class="card" id="variantSection" style="display:none;">
+      <label>Preset variant</label>
+      <div class="grid" id="variantGrid"></div>
+    </section>
+
+    <section class="card row">
+      <div class="row" style="gap:10px; justify-content:flex-start;">
+        <button class="play" id="playBtn" type="button">Play</button>
+        <button class="record" id="recordBtn" type="button">Record</button>
+        <span class="status">Status: <span id="statusText">Ready</span></span>
+      </div>
+      <span id="freqLabel">Select frequency</span>
+    </section>
+
+    <section class="card">
+      <div class="slider-group">
+        <div class="slider-row">
+          <span>Stereo width</span>
+          <span id="stereoLabel">50%</span>
+        </div>
+        <input id="stereoSlider" type="range" min="0" max="100" value="50">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-row">
+          <span>Portamento glide</span>
+          <span id="glideLabel">300ms</span>
+        </div>
+        <input id="glideSlider" type="range" min="0" max="2000" value="300" step="10">
+      </div>
+
+      <div class="slider-group" style="margin-bottom:0;">
+        <div class="slider-row">
+          <span>Volume</span>
+          <span id="volumeLabel">-6dB</span>
+        </div>
+        <input id="volumeSlider" type="range" min="-20" max="0" value="-6">
+      </div>
+    </section>
+
+    <section class="card">
+      <label>Audio activity</label>
+      <canvas id="waveCanvas" aria-label="Audio waveform"></canvas>
+    </section>
+  </main>
+
+  <script>
+    const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const BEAT_PRESETS = [1, 2, 4, 6, 8, 12, 16, 24, 32];
+    const CROSSFADE_SECONDS = 0.3;
+    const C3_HZ = 130.8128;
+
+    const PRESETS = {
+      1: {
+        label: 'Delta | Lethargy',
+        variants: {
+          a: { carriers: 4, spread: 0.42, semitones: [-9, -3, 2, 7] },
+          b: { carriers: 5, spread: 0.56, semitones: [-10, -5, 0, 5, 10] },
+          c: { carriers: 6, spread: 0.72, semitones: [-12, -7, -2, 2, 7, 12] },
+          d: { carriers: 4, spread: 0.88, semitones: [-11, -4, 4, 11] }
+        }
+      },
+      2: {
+        label: 'Delta | Deep Sleep',
+        variants: {
+          a: { carriers: 4, spread: 0.4, semitones: [-8, -2, 3, 9] },
+          b: { carriers: 5, spread: 0.58, semitones: [-10, -5, 0, 5, 10] },
+          c: { carriers: 6, spread: 0.74, semitones: [-12, -7, -2, 2, 7, 12] },
+          d: { carriers: 4, spread: 0.9, semitones: [-12, -3, 3, 12] }
+        }
+      },
+      4: {
+        label: 'Theta | Drowsy',
+        variants: {
+          a: { carriers: 4, spread: 0.45, semitones: [-7, -1, 4, 9] },
+          b: { carriers: 5, spread: 0.6, semitones: [-9, -4, 0, 4, 9] },
+          c: { carriers: 6, spread: 0.72, semitones: [-11, -6, -2, 2, 6, 11] },
+          d: { carriers: 4, spread: 0.9, semitones: [-10, -3, 3, 10] }
+        }
+      },
+      6: {
+        label: 'Theta | Fantasy',
+        variants: {
+          a: { carriers: 4, spread: 0.5, semitones: [-8, -2, 2, 8] },
+          b: { carriers: 5, spread: 0.62, semitones: [-10, -4, 0, 4, 10] },
+          c: { carriers: 6, spread: 0.78, semitones: [-12, -7, -3, 3, 7, 12] },
+          d: { carriers: 4, spread: 0.9, semitones: [-11, -3, 3, 11] }
+        }
+      },
+      8: {
+        label: 'Alpha | Relaxed',
+        variants: {
+          a: { carriers: 4, spread: 0.4, semitones: [-6, -1, 4, 8] },
+          b: { carriers: 5, spread: 0.56, semitones: [-8, -3, 0, 3, 8] },
+          c: { carriers: 6, spread: 0.7, semitones: [-10, -6, -2, 2, 6, 10] },
+          d: { carriers: 4, spread: 0.88, semitones: [-9, -2, 2, 9] }
+        }
+      },
+      12: {
+        label: 'Alpha | Conscious',
+        variants: {
+          a: { carriers: 4, spread: 0.42, semitones: [-7, -1, 5, 10] },
+          b: { carriers: 5, spread: 0.58, semitones: [-10, -5, 0, 5, 10] },
+          c: { carriers: 6, spread: 0.74, semitones: [-12, -7, -2, 2, 7, 12] },
+          d: { carriers: 4, spread: 0.9, semitones: [-11, -2, 2, 11] }
+        }
+      },
+      16: {
+        label: 'Beta | Focused',
+        variants: {
+          a: { carriers: 4, spread: 0.38, semitones: [-5, -1, 4, 7] },
+          b: { carriers: 5, spread: 0.52, semitones: [-8, -4, 0, 4, 8] },
+          c: { carriers: 6, spread: 0.66, semitones: [-10, -6, -2, 2, 6, 10] },
+          d: { carriers: 4, spread: 0.84, semitones: [-9, -2, 2, 9] }
+        }
+      },
+      24: {
+        label: 'Beta | Active',
+        variants: {
+          a: { carriers: 4, spread: 0.34, semitones: [-4, 0, 4, 8] },
+          b: { carriers: 5, spread: 0.48, semitones: [-8, -3, 1, 4, 8] },
+          c: { carriers: 6, spread: 0.62, semitones: [-9, -5, -1, 1, 5, 9] },
+          d: { carriers: 4, spread: 0.82, semitones: [-8, -1, 3, 10] }
+        }
+      },
+      32: {
+        label: 'Gamma | Alert',
+        variants: {
+          a: { carriers: 4, spread: 0.32, semitones: [-3, 1, 5, 9] },
+          b: { carriers: 5, spread: 0.54, semitones: [-8, -3, 1, 4, 8] },
+          c: { carriers: 6, spread: 0.7, semitones: [-10, -6, -1, 2, 6, 10] },
+          d: { carriers: 4, spread: 0.86, semitones: [-9, -2, 2, 9] }
+        }
+      }
+    };
+
+    const state = {
+      baseNote: 0,
+      beatHz: 0,
+      variant: 'a',
+      stereoWidth: 0.5,
+      volumeDb: -6,
+      glideMs: 300,
+      isPlaying: false,
+      audio: null,
+      analyserData: null,
+      activeBus: 0,
+      buses: [null, null],
+      cleanupTimer: null,
+      recorder: {
+        isRecording: false,
+        leftChunks: [],
+        rightChunks: [],
+        sampleRate: 44100,
+        node: null
+      }
+    };
+
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(max, n));
+    }
+
+    function noteToHz(noteIndex) {
+      return C3_HZ * Math.pow(2, noteIndex / 12);
+    }
+
+    function dbToGain(db) {
+      return Math.pow(10, db / 20);
+    }
+
+    function getCurrentConfig() {
+      const freqPack = PRESETS[state.beatHz];
+      if (!freqPack) return null;
+      return freqPack.variants[state.variant] || freqPack.variants.a;
+    }
+
+    function floatTo16BitPCM(float32Array) {
+      const out = new Int16Array(float32Array.length);
+      for (let i = 0; i < float32Array.length; i += 1) {
+        const s = Math.max(-1, Math.min(1, float32Array[i]));
+        out[i] = s < 0 ? s * 32768 : s * 32767;
+      }
+      return out;
+    }
+
+    function concatInt16(chunks) {
+      const totalLength = chunks.reduce((sum, c) => sum + c.length, 0);
+      const out = new Int16Array(totalLength);
+      let offset = 0;
+      chunks.forEach((chunk) => {
+        out.set(chunk, offset);
+        offset += chunk.length;
+      });
+      return out;
+    }
+
+    function encodeMp3Blob(leftChunks, rightChunks, sampleRate) {
+      if (!window.lamejs) return null;
+      const left = concatInt16(leftChunks);
+      const right = concatInt16(rightChunks);
+      const encoder = new lamejs.Mp3Encoder(2, sampleRate, 320);
+      const blockSize = 1152;
+      const mp3Data = [];
+
+      for (let i = 0; i < left.length; i += blockSize) {
+        const leftChunk = left.subarray(i, i + blockSize);
+        const rightChunk = right.subarray(i, i + blockSize);
+        const mp3buf = encoder.encodeBuffer(leftChunk, rightChunk);
+        if (mp3buf.length > 0) mp3Data.push(mp3buf);
+      }
+
+      const end = encoder.flush();
+      if (end.length > 0) mp3Data.push(end);
+      return new Blob(mp3Data, { type: 'audio/mpeg' });
+    }
+
+    function ensureAudio() {
+      if (state.audio) return;
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 1024;
+
+      const master = ctx.createGain();
+      master.gain.value = dbToGain(state.volumeDb);
+      analyser.connect(master);
+      master.connect(ctx.destination);
+
+      state.audio = { ctx, analyser, master };
+      state.analyserData = new Uint8Array(analyser.frequencyBinCount);
+      state.recorder.sampleRate = Math.round(ctx.sampleRate || 44100);
+
+      state.buses = [
+        { gain: ctx.createGain(), voices: [] },
+        { gain: ctx.createGain(), voices: [] }
+      ];
+      state.buses[0].gain.gain.value = 0;
+      state.buses[1].gain.gain.value = 0;
+      state.buses[0].gain.connect(analyser);
+      state.buses[1].gain.connect(analyser);
+
+      const recorderNode = ctx.createScriptProcessor(2048, 2, 2);
+      recorderNode.onaudioprocess = (evt) => {
+        if (!state.recorder.isRecording) return;
+        const l = evt.inputBuffer.getChannelData(0);
+        const r = evt.inputBuffer.getChannelData(1);
+        state.recorder.leftChunks.push(floatTo16BitPCM(l));
+        state.recorder.rightChunks.push(floatTo16BitPCM(r));
+      };
+      analyser.connect(recorderNode);
+      recorderNode.connect(ctx.destination);
+      state.recorder.node = recorderNode;
+    }
+
+    function lanePan(position, spread, width) {
+      const side = 0.5 * width;
+      const shape = position * spread * width * 0.7;
+      return {
+        left: clamp(-side + shape, -1, 1),
+        right: clamp(side + shape, -1, 1)
+      };
+    }
+
+    function stopVoiceList(voices) {
+      voices.forEach((v) => {
+        try { v.lOsc.stop(); } catch (_) {}
+        try { v.rOsc.stop(); } catch (_) {}
+
+        v.lOsc.disconnect();
+        v.rOsc.disconnect();
+        v.lGain.disconnect();
+        v.rGain.disconnect();
+        v.lPan.disconnect();
+        v.rPan.disconnect();
+      });
+    }
+
+    function createVoicesForBus(busIndex) {
+      const cfg = getCurrentConfig();
+      if (!cfg) return;
+
+      ensureAudio();
+      const { ctx } = state.audio;
+      const bus = state.buses[busIndex];
+      const baseHz = noteToHz(state.baseNote);
+      const halfBeat = state.beatHz / 2;
+      const amp = 0.2 / cfg.carriers;
+
+      stopVoiceList(bus.voices);
+      bus.voices = [];
+
+      for (let i = 0; i < cfg.carriers; i += 1) {
+        const t = cfg.carriers === 1 ? 0 : i / (cfg.carriers - 1);
+        const pos = (t * 2) - 1;
+        const pair = lanePan(pos, cfg.spread, state.stereoWidth);
+
+        const centerHz = baseHz * Math.pow(2, cfg.semitones[i] / 12);
+        const lHz = Math.max(20, centerHz - halfBeat);
+        const rHz = Math.max(20, centerHz + halfBeat);
+
+        const lOsc = ctx.createOscillator();
+        const rOsc = ctx.createOscillator();
+        lOsc.type = 'sine';
+        rOsc.type = 'sine';
+        lOsc.frequency.value = lHz;
+        rOsc.frequency.value = rHz;
+
+        const lGain = ctx.createGain();
+        const rGain = ctx.createGain();
+        lGain.gain.value = amp;
+        rGain.gain.value = amp;
+
+        const lPan = ctx.createStereoPanner();
+        const rPan = ctx.createStereoPanner();
+        lPan.pan.value = pair.left;
+        rPan.pan.value = pair.right;
+
+        lOsc.connect(lGain);
+        lGain.connect(lPan);
+        lPan.connect(bus.gain);
+
+        rOsc.connect(rGain);
+        rGain.connect(rPan);
+        rPan.connect(bus.gain);
+
+        lOsc.start();
+        rOsc.start();
+
+        bus.voices.push({ lOsc, rOsc, lGain, rGain, lPan, rPan, pos, semitone: cfg.semitones[i] });
+      }
+    }
+
+    function glideRetuneCurrentBaseNote() {
+      if (!state.audio || !state.isPlaying || !state.beatHz) return;
+      const now = state.audio.ctx.currentTime;
+      const glideSeconds = state.glideMs / 1000;
+      const baseHz = noteToHz(state.baseNote);
+      const halfBeat = state.beatHz / 2;
+
+      state.buses.forEach((bus) => {
+        bus.voices.forEach((voice) => {
+          const centerHz = baseHz * Math.pow(2, voice.semitone / 12);
+          const lHz = Math.max(20, centerHz - halfBeat);
+          const rHz = Math.max(20, centerHz + halfBeat);
+
+          voice.lOsc.frequency.cancelScheduledValues(now);
+          voice.rOsc.frequency.cancelScheduledValues(now);
+          voice.lOsc.frequency.setTargetAtTime(lHz, now, Math.max(0.001, glideSeconds / 3));
+          voice.rOsc.frequency.setTargetAtTime(rHz, now, Math.max(0.001, glideSeconds / 3));
+        });
+      });
+    }
+
+    function crossfadeToCurrentPreset() {
+      if (!state.audio || !state.isPlaying || !state.beatHz) return;
+
+      if (state.cleanupTimer) {
+        clearTimeout(state.cleanupTimer);
+        state.cleanupTimer = null;
+      }
+
+      const { ctx } = state.audio;
+      const oldIndex = state.activeBus;
+      const newIndex = oldIndex === 0 ? 1 : 0;
+
+      createVoicesForBus(newIndex);
+
+      const now = ctx.currentTime;
+      const oldGain = state.buses[oldIndex].gain.gain;
+      const newGain = state.buses[newIndex].gain.gain;
+
+      oldGain.cancelScheduledValues(now);
+      newGain.cancelScheduledValues(now);
+      oldGain.setValueAtTime(oldGain.value, now);
+      newGain.setValueAtTime(0, now);
+
+      oldGain.linearRampToValueAtTime(0, now + CROSSFADE_SECONDS);
+      newGain.linearRampToValueAtTime(1, now + CROSSFADE_SECONDS);
+
+      state.activeBus = newIndex;
+
+      state.cleanupTimer = setTimeout(() => {
+        stopVoiceList(state.buses[oldIndex].voices);
+        state.buses[oldIndex].voices = [];
+      }, Math.floor((CROSSFADE_SECONDS * 1000) + 40));
+
+      renderStereoViz();
+    }
+
+    async function startPlayback() {
+      if (!state.beatHz) {
+        setStatus('Select a frequency first');
+        return;
+      }
+
+      ensureAudio();
+      const { ctx } = state.audio;
+      if (ctx.state === 'suspended') await ctx.resume();
+
+      state.isPlaying = true;
+
+      createVoicesForBus(state.activeBus);
+      const g = state.buses[state.activeBus].gain.gain;
+      const now = ctx.currentTime;
+      g.cancelScheduledValues(now);
+      g.setValueAtTime(0, now);
+      g.linearRampToValueAtTime(1, now + CROSSFADE_SECONDS);
+
+      setStatus('Playing');
+      document.getElementById('playBtn').textContent = 'Stop';
+      renderStereoViz();
+    }
+
+    function stopPlayback() {
+      if (!state.audio || !state.isPlaying) return;
+
+      const { ctx } = state.audio;
+      const now = ctx.currentTime;
+
+      state.buses.forEach((bus) => {
+        const g = bus.gain.gain;
+        g.cancelScheduledValues(now);
+        g.setValueAtTime(g.value, now);
+        g.linearRampToValueAtTime(0, now + CROSSFADE_SECONDS);
+      });
+
+      setTimeout(() => {
+        state.buses.forEach((bus) => {
+          stopVoiceList(bus.voices);
+          bus.voices = [];
+        });
+      }, Math.floor((CROSSFADE_SECONDS * 1000) + 40));
+
+      state.isPlaying = false;
+      setStatus('Stopped');
+      document.getElementById('playBtn').textContent = 'Play';
+      renderStereoViz();
+    }
+
+    function startRecording() {
+      ensureAudio();
+      if (state.recorder.isRecording) return;
+
+      state.recorder.leftChunks = [];
+      state.recorder.rightChunks = [];
+      state.recorder.isRecording = true;
+      document.getElementById('recordBtn').textContent = 'Stop Rec';
+      document.getElementById('recordBtn').classList.add('active');
+      setStatus('Recording...');
+    }
+
+    function stopRecordingAndDownload() {
+      if (!state.recorder.isRecording) return;
+      state.recorder.isRecording = false;
+
+      const blob = encodeMp3Blob(
+        state.recorder.leftChunks,
+        state.recorder.rightChunks,
+        state.recorder.sampleRate
+      );
+
+      if (blob) {
+        const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const fileName = 'biarual beats somting ' + stamp + '.mp3';
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } else {
+        alert('MP3 encoder did not load. Recording skipped.');
+      }
+
+      state.recorder.leftChunks = [];
+      state.recorder.rightChunks = [];
+      document.getElementById('recordBtn').textContent = 'Record';
+      document.getElementById('recordBtn').classList.remove('active');
+      setStatus(state.isPlaying ? 'Playing' : 'Stopped');
+    }
+
+    function setStatus(text) {
+      document.getElementById('statusText').textContent = text;
+    }
+
+    function updateHeaderLabel() {
+      const el = document.getElementById('freqLabel');
+      const p = PRESETS[state.beatHz];
+      if (!p) {
+        el.textContent = 'Select frequency';
+        return;
+      }
+      el.textContent = state.beatHz + ' Hz | ' + p.label + ' | ' + state.beatHz + state.variant;
+    }
+
+    function setBaseNote(noteIndex) {
+      state.baseNote = noteIndex;
+      document.querySelectorAll('[data-note]').forEach((btn) => {
+        btn.classList.toggle('active', Number(btn.dataset.note) === noteIndex);
+      });
+
+      if (state.isPlaying) glideRetuneCurrentBaseNote();
+    }
+
+    function setBeatPreset(hz) {
+      state.beatHz = hz;
+      const variants = Object.keys(PRESETS[hz].variants);
+      state.variant = variants[0];
+
+      document.querySelectorAll('[data-hz]').forEach((btn) => {
+        btn.classList.toggle('active', Number(btn.dataset.hz) === hz);
+      });
+
+      renderVariantButtons();
+      updateHeaderLabel();
+      renderStereoViz();
+
+      if (state.isPlaying) crossfadeToCurrentPreset();
+    }
+
+    function setVariant(variant) {
+      state.variant = variant;
+      document.querySelectorAll('[data-variant]').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.variant === variant);
+      });
+      updateHeaderLabel();
+      renderStereoViz();
+
+      if (state.isPlaying) crossfadeToCurrentPreset();
+    }
+
+    function setStereoWidth(value) {
+      state.stereoWidth = Number(value) / 100;
+      document.getElementById('stereoLabel').textContent = value + '%';
+
+      if (state.audio) {
+        const cfg = getCurrentConfig();
+        if (cfg) {
+          state.buses.forEach((bus) => {
+            bus.voices.forEach((voice, i) => {
+              const carriers = cfg.carriers;
+              const t = carriers === 1 ? 0 : i / (carriers - 1);
+              const pos = (t * 2) - 1;
+              const pair = lanePan(pos, cfg.spread, state.stereoWidth);
+              voice.lPan.pan.setTargetAtTime(pair.left, state.audio.ctx.currentTime, 0.04);
+              voice.rPan.pan.setTargetAtTime(pair.right, state.audio.ctx.currentTime, 0.04);
+            });
+          });
+        }
+      }
+
+      renderStereoViz();
+    }
+
+    function setVolume(value) {
+      state.volumeDb = Number(value);
+      document.getElementById('volumeLabel').textContent = value + 'dB';
+      if (!state.audio) return;
+
+      const gainValue = dbToGain(state.volumeDb);
+      const now = state.audio.ctx.currentTime;
+      state.audio.master.gain.cancelScheduledValues(now);
+      state.audio.master.gain.setValueAtTime(state.audio.master.gain.value, now);
+      state.audio.master.gain.linearRampToValueAtTime(gainValue, now + 0.1);
+    }
+
+    function setGlide(value) {
+      state.glideMs = Number(value);
+      document.getElementById('glideLabel').textContent = value + 'ms';
+    }
+
+    function renderVariantButtons() {
+      const section = document.getElementById('variantSection');
+      const grid = document.getElementById('variantGrid');
+      grid.innerHTML = '';
+
+      if (!state.beatHz) {
+        section.style.display = 'none';
+        return;
+      }
+
+      const variants = Object.keys(PRESETS[state.beatHz].variants);
+      section.style.display = variants.length ? 'block' : 'none';
+
+      variants.forEach((variant) => {
+        const btn = document.createElement('button');
+        btn.dataset.variant = variant;
+        btn.textContent = state.beatHz + variant;
+        btn.classList.toggle('active', variant === state.variant);
+        btn.addEventListener('click', () => setVariant(variant));
+        grid.appendChild(btn);
+      });
+    }
+
+    function renderStereoViz() {
+      const svg = document.getElementById('stereoViz');
+      svg.querySelectorAll('.dot').forEach((n) => n.remove());
+
+      const cfg = getCurrentConfig();
+      if (!cfg) return;
+
+      const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#a78bfa', '#ff88cc'];
+      for (let i = 0; i < cfg.carriers; i += 1) {
+        const t = cfg.carriers === 1 ? 0 : i / (cfg.carriers - 1);
+        const pos = (t * 2) - 1;
+        const pair = lanePan(pos, cfg.spread, state.stereoWidth);
+
+        const lx = 150 + (pair.left * 135);
+        const rx = 150 + (pair.right * 135);
+
+        const dotL = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dotL.setAttribute('class', 'dot');
+        dotL.setAttribute('cx', String(lx));
+        dotL.setAttribute('cy', '30');
+        dotL.setAttribute('r', '6');
+        dotL.setAttribute('fill', colors[i % colors.length]);
+        dotL.setAttribute('opacity', '0.88');
+
+        const dotR = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dotR.setAttribute('class', 'dot');
+        dotR.setAttribute('cx', String(rx));
+        dotR.setAttribute('cy', '80');
+        dotR.setAttribute('r', '6');
+        dotR.setAttribute('fill', colors[i % colors.length]);
+        dotR.setAttribute('opacity', '0.88');
+
+        svg.appendChild(dotL);
+        svg.appendChild(dotR);
+      }
+    }
+
+    function buildButtonGrids() {
+      const noteGrid = document.getElementById('noteGrid');
+      NOTE_NAMES.forEach((name, idx) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.dataset.note = String(idx);
+        b.textContent = name;
+        if (idx === state.baseNote) b.classList.add('active');
+        b.addEventListener('click', () => setBaseNote(idx));
+        noteGrid.appendChild(b);
+      });
+
+      const freqGrid = document.getElementById('freqGrid');
+      BEAT_PRESETS.forEach((hz) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.dataset.hz = String(hz);
+        const mood = PRESETS[hz].label.split('|')[0].trim();
+        b.textContent = hz + ' Hz | ' + mood;
+        b.addEventListener('click', () => setBeatPreset(hz));
+        freqGrid.appendChild(b);
+      });
+    }
+
+    function animateWave() {
+      const canvas = document.getElementById('waveCanvas');
+      const ctx = canvas.getContext('2d');
+
+      const rect = canvas.getBoundingClientRect();
+      const w = Math.max(1, Math.floor(rect.width));
+      const h = Math.max(1, Math.floor(rect.height));
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+      }
+
+      ctx.fillStyle = '#0d0f13';
+      ctx.fillRect(0, 0, w, h);
+
+      if (state.audio && state.analyserData) {
+        state.audio.analyser.getByteFrequencyData(state.analyserData);
+        const bins = Math.min(220, state.analyserData.length);
+        const slice = w / bins;
+
+        ctx.strokeStyle = '#0ea5e9';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        for (let i = 0; i < bins; i += 1) {
+          const x = i * slice;
+          const y = h - ((state.analyserData[i] / 255) * h);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      } else {
+        ctx.strokeStyle = '#1f2937';
+        ctx.beginPath();
+        ctx.moveTo(0, h * 0.5);
+        ctx.lineTo(w, h * 0.5);
+        ctx.stroke();
+      }
+
+      requestAnimationFrame(animateWave);
+    }
+
+    function wireControls() {
+      document.getElementById('playBtn').addEventListener('click', () => {
+        if (state.isPlaying) stopPlayback();
+        else startPlayback();
+      });
+
+      document.getElementById('recordBtn').addEventListener('click', () => {
+        if (state.recorder.isRecording) stopRecordingAndDownload();
+        else startRecording();
+      });
+
+      document.getElementById('stereoSlider').addEventListener('input', (e) => {
+        setStereoWidth(e.target.value);
+      });
+
+      document.getElementById('glideSlider').addEventListener('input', (e) => {
+        setGlide(e.target.value);
+      });
+
+      document.getElementById('volumeSlider').addEventListener('input', (e) => {
+        setVolume(e.target.value);
+      });
+    }
+
+    buildButtonGrids();
+    wireControls();
+    setGlide(300);
+    setBeatPreset(4);
+    updateHeaderLabel();
+    renderStereoViz();
+    animateWave();
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binaural Beats Generator</title>
+  <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #171717;
+      color: #f5f5f5;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      color: #9ca3af;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: #111214;
+      border: 1px solid #2b2f36;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      color: #9ca3af;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
+      gap: 7px;
+    }
+
+    .grid-wide {
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+
+    button {
+      border: 1px solid #3a404a;
+      background: #242933;
+      color: #e5e7eb;
+      padding: 9px 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover {
+      background: #2d3340;
+      border-color: #4b5563;
+    }
+
+    button.active {
+      background: #0ea5e9;
+      border-color: #0ea5e9;
+      color: white;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .status {
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    #freqLabel {
+      color: #d1d5db;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .play {
+      min-width: 92px;
+      padding: 10px 12px;
+      font-weight: 700;
+      border-color: #0ea5e9;
+      background: #0ea5e9;
+      color: #ffffff;
+    }
+
+    .play:hover {
+      background: #0284c7;
+      border-color: #0284c7;
+    }
+
+    .record {
+      min-width: 100px;
+      padding: 10px 12px;
+      font-weight: 700;
+      border-color: #ef4444;
+      background: #ef4444;
+      color: #ffffff;
+    }
+
+    .record:hover {
+      background: #dc2626;
+      border-color: #dc2626;
+    }
+
+    .record.active {
+      background: #7f1d1d;
+      border-color: #fecaca;
+    }
+
+    .slider-group {
+      margin-bottom: 12px;
+    }
+
+    .slider-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 7px;
+      color: #9ca3af;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #0ea5e9;
+    }
+
+    #stereoViz {
+      width: 100%;
+      height: 110px;
+      border-radius: 10px;
+      border: 1px solid #2b2f36;
+      background: linear-gradient(90deg, #1f232b 0%, #161a20 50%, #1f232b 100%);
+      display: block;
+    }
+
+    #waveCanvas {
+      width: 100%;
+      height: 120px;
+      border-radius: 10px;
+      border: 1px solid #2b2f36;
+      background: #0d0f13;
+      display: block;
+    }
+
+    .legend {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 14px; }
+      h1 { font-size: 23px; }
+      .row { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Binaural Beats Generator</h1>
+    <p class="subtitle">4-6 sine carriers per ear, 4 variants per mood, with 300ms crossfades and MP3 recording.</p>
+
+    <section class="card">
+      <label>Stereo carrier map</label>
+      <svg id="stereoViz" viewBox="0 0 300 110" xmlns="http://www.w3.org/2000/svg" aria-label="Stereo field visualization">
+        <line x1="150" y1="10" x2="150" y2="100" stroke="#3f4653" stroke-width="0.8"></line>
+        <line x1="10" y1="55" x2="290" y2="55" stroke="#2b313d" stroke-width="0.6"></line>
+        <text x="12" y="26" fill="#6b7280" font-size="10">Left ear lane</text>
+        <text x="12" y="86" fill="#6b7280" font-size="10">Right ear lane</text>
+        <text x="20" y="104" fill="#6b7280" font-size="10">L</text>
+        <text x="280" y="104" fill="#6b7280" font-size="10">R</text>
+      </svg>
+      <div class="legend">
+        <span>Upper dots: left-ear carriers</span>
+        <span>Lower dots: right-ear carriers</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <label>Base note (C through B)</label>
+      <div class="grid" id="noteGrid"></div>
+    </section>
+
+    <section class="card">
+      <label>Target beat frequency (Hz + mood)</label>
+      <div class="grid grid-wide" id="freqGrid"></div>
+    </section>
+
+    <section class="card" id="variantSection" style="display:none;">
+      <label>Preset variant</label>
+      <div class="grid" id="variantGrid"></div>
+    </section>
+
+    <section class="card row">
+      <div class="row" style="gap:10px; justify-content:flex-start;">
+        <button class="play" id="playBtn" type="button">Play</button>
+        <button class="record" id="recordBtn" type="button">Record</button>
+        <span class="status">Status: <span id="statusText">Ready</span></span>
+      </div>
+      <span id="freqLabel">Select frequency</span>
+    </section>
+
+    <section class="card">
+      <div class="slider-group">
+        <div class="slider-row">
+          <span>Stereo width</span>
+          <span id="stereoLabel">50%</span>
+        </div>
+        <input id="stereoSlider" type="range" min="0" max="100" value="50">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-row">
+          <span>Portamento glide</span>
+          <span id="glideLabel">300ms</span>
+        </div>
+        <input id="glideSlider" type="range" min="0" max="2000" value="300" step="10">
+      </div>
+
+      <div class="slider-group" style="margin-bottom:0;">
+        <div class="slider-row">
+          <span>Volume</span>
+          <span id="volumeLabel">-6dB</span>
+        </div>
+        <input id="volumeSlider" type="range" min="-20" max="0" value="-6">
+      </div>
+    </section>
+
+    <section class="card">
+      <label>Audio activity</label>
+      <canvas id="waveCanvas" aria-label="Audio waveform"></canvas>
+    </section>
+  </main>
+
+  <script>
+    const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const BEAT_PRESETS = [1, 2, 4, 6, 8, 12, 16, 24, 32];
+    const CROSSFADE_SECONDS = 0.3;
+    const C3_HZ = 130.8128;
+
+    const PRESETS = {
+      1: {
+        label: 'Delta | Lethargy',
+        variants: {
+          a: { carriers: 4, spread: 0.42, semitones: [-9, -3, 2, 7] },
+          b: { carriers: 5, spread: 0.56, semitones: [-10, -5, 0, 5, 10] },
+          c: { carriers: 6, spread: 0.72, semitones: [-12, -7, -2, 2, 7, 12] },
+          d: { carriers: 4, spread: 0.88, semitones: [-11, -4, 4, 11] }
+        }
+      },
+      2: {
+        label: 'Delta | Deep Sleep',
+        variants: {
+          a: { carriers: 4, spread: 0.4, semitones: [-8, -2, 3, 9] },
+          b: { carriers: 5, spread: 0.58, semitones: [-10, -5, 0, 5, 10] },
+          c: { carriers: 6, spread: 0.74, semitones: [-12, -7, -2, 2, 7, 12] },
+          d: { carriers: 4, spread: 0.9, semitones: [-12, -3, 3, 12] }
+        }
+      },
+      4: {
+        label: 'Theta | Drowsy',
+        variants: {
+          a: { carriers: 4, spread: 0.45, semitones: [-7, -1, 4, 9] },
+          b: { carriers: 5, spread: 0.6, semitones: [-9, -4, 0, 4, 9] },
+          c: { carriers: 6, spread: 0.72, semitones: [-11, -6, -2, 2, 6, 11] },
+          d: { carriers: 4, spread: 0.9, semitones: [-10, -3, 3, 10] }
+        }
+      },
+      6: {
+        label: 'Theta | Fantasy',
+        variants: {
+          a: { carriers: 4, spread: 0.5, semitones: [-8, -2, 2, 8] },
+          b: { carriers: 5, spread: 0.62, semitones: [-10, -4, 0, 4, 10] },
+          c: { carriers: 6, spread: 0.78, semitones: [-12, -7, -3, 3, 7, 12] },
+          d: { carriers: 4, spread: 0.9, semitones: [-11, -3, 3, 11] }
+        }
+      },
+      8: {
+        label: 'Alpha | Relaxed',
+        variants: {
+          a: { carriers: 4, spread: 0.4, semitones: [-6, -1, 4, 8] },
+          b: { carriers: 5, spread: 0.56, semitones: [-8, -3, 0, 3, 8] },
+          c: { carriers: 6, spread: 0.7, semitones: [-10, -6, -2, 2, 6, 10] },
+          d: { carriers: 4, spread: 0.88, semitones: [-9, -2, 2, 9] }
+        }
+      },
+      12: {
+        label: 'Alpha | Conscious',
+        variants: {
+          a: { carriers: 4, spread: 0.42, semitones: [-7, -1, 5, 10] },
+          b: { carriers: 5, spread: 0.58, semitones: [-10, -5, 0, 5, 10] },
+          c: { carriers: 6, spread: 0.74, semitones: [-12, -7, -2, 2, 7, 12] },
+          d: { carriers: 4, spread: 0.9, semitones: [-11, -2, 2, 11] }
+        }
+      },
+      16: {
+        label: 'Beta | Focused',
+        variants: {
+          a: { carriers: 4, spread: 0.38, semitones: [-5, -1, 4, 7] },
+          b: { carriers: 5, spread: 0.52, semitones: [-8, -4, 0, 4, 8] },
+          c: { carriers: 6, spread: 0.66, semitones: [-10, -6, -2, 2, 6, 10] },
+          d: { carriers: 4, spread: 0.84, semitones: [-9, -2, 2, 9] }
+        }
+      },
+      24: {
+        label: 'Beta | Active',
+        variants: {
+          a: { carriers: 4, spread: 0.34, semitones: [-4, 0, 4, 8] },
+          b: { carriers: 5, spread: 0.48, semitones: [-8, -3, 1, 4, 8] },
+          c: { carriers: 6, spread: 0.62, semitones: [-9, -5, -1, 1, 5, 9] },
+          d: { carriers: 4, spread: 0.82, semitones: [-8, -1, 3, 10] }
+        }
+      },
+      32: {
+        label: 'Gamma | Alert',
+        variants: {
+          a: { carriers: 4, spread: 0.32, semitones: [-3, 1, 5, 9] },
+          b: { carriers: 5, spread: 0.54, semitones: [-8, -3, 1, 4, 8] },
+          c: { carriers: 6, spread: 0.7, semitones: [-10, -6, -1, 2, 6, 10] },
+          d: { carriers: 4, spread: 0.86, semitones: [-9, -2, 2, 9] }
+        }
+      }
+    };
+
+    const state = {
+      baseNote: 0,
+      beatHz: 0,
+      variant: 'a',
+      stereoWidth: 0.5,
+      volumeDb: -6,
+      glideMs: 300,
+      isPlaying: false,
+      audio: null,
+      analyserData: null,
+      activeBus: 0,
+      buses: [null, null],
+      cleanupTimer: null,
+      recorder: {
+        isRecording: false,
+        leftChunks: [],
+        rightChunks: [],
+        sampleRate: 44100,
+        node: null
+      }
+    };
+
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(max, n));
+    }
+
+    function noteToHz(noteIndex) {
+      return C3_HZ * Math.pow(2, noteIndex / 12);
+    }
+
+    function dbToGain(db) {
+      return Math.pow(10, db / 20);
+    }
+
+    function getCurrentConfig() {
+      const freqPack = PRESETS[state.beatHz];
+      if (!freqPack) return null;
+      return freqPack.variants[state.variant] || freqPack.variants.a;
+    }
+
+    function floatTo16BitPCM(float32Array) {
+      const out = new Int16Array(float32Array.length);
+      for (let i = 0; i < float32Array.length; i += 1) {
+        const s = Math.max(-1, Math.min(1, float32Array[i]));
+        out[i] = s < 0 ? s * 32768 : s * 32767;
+      }
+      return out;
+    }
+
+    function concatInt16(chunks) {
+      const totalLength = chunks.reduce((sum, c) => sum + c.length, 0);
+      const out = new Int16Array(totalLength);
+      let offset = 0;
+      chunks.forEach((chunk) => {
+        out.set(chunk, offset);
+        offset += chunk.length;
+      });
+      return out;
+    }
+
+    function encodeMp3Blob(leftChunks, rightChunks, sampleRate) {
+      if (!window.lamejs) return null;
+      const left = concatInt16(leftChunks);
+      const right = concatInt16(rightChunks);
+      const encoder = new lamejs.Mp3Encoder(2, sampleRate, 320);
+      const blockSize = 1152;
+      const mp3Data = [];
+
+      for (let i = 0; i < left.length; i += blockSize) {
+        const leftChunk = left.subarray(i, i + blockSize);
+        const rightChunk = right.subarray(i, i + blockSize);
+        const mp3buf = encoder.encodeBuffer(leftChunk, rightChunk);
+        if (mp3buf.length > 0) mp3Data.push(mp3buf);
+      }
+
+      const end = encoder.flush();
+      if (end.length > 0) mp3Data.push(end);
+      return new Blob(mp3Data, { type: 'audio/mpeg' });
+    }
+
+    function ensureAudio() {
+      if (state.audio) return;
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 1024;
+
+      const master = ctx.createGain();
+      master.gain.value = dbToGain(state.volumeDb);
+      analyser.connect(master);
+      master.connect(ctx.destination);
+
+      state.audio = { ctx, analyser, master };
+      state.analyserData = new Uint8Array(analyser.frequencyBinCount);
+      state.recorder.sampleRate = Math.round(ctx.sampleRate || 44100);
+
+      state.buses = [
+        { gain: ctx.createGain(), voices: [] },
+        { gain: ctx.createGain(), voices: [] }
+      ];
+      state.buses[0].gain.gain.value = 0;
+      state.buses[1].gain.gain.value = 0;
+      state.buses[0].gain.connect(analyser);
+      state.buses[1].gain.connect(analyser);
+
+      const recorderNode = ctx.createScriptProcessor(2048, 2, 2);
+      recorderNode.onaudioprocess = (evt) => {
+        if (!state.recorder.isRecording) return;
+        const l = evt.inputBuffer.getChannelData(0);
+        const r = evt.inputBuffer.getChannelData(1);
+        state.recorder.leftChunks.push(floatTo16BitPCM(l));
+        state.recorder.rightChunks.push(floatTo16BitPCM(r));
+      };
+      analyser.connect(recorderNode);
+      recorderNode.connect(ctx.destination);
+      state.recorder.node = recorderNode;
+    }
+
+    function lanePan(position, spread, width) {
+      const side = 0.5 * width;
+      const shape = position * spread * width * 0.7;
+      return {
+        left: clamp(-side + shape, -1, 1),
+        right: clamp(side + shape, -1, 1)
+      };
+    }
+
+    function stopVoiceList(voices) {
+      voices.forEach((v) => {
+        try { v.lOsc.stop(); } catch (_) {}
+        try { v.rOsc.stop(); } catch (_) {}
+
+        v.lOsc.disconnect();
+        v.rOsc.disconnect();
+        v.lGain.disconnect();
+        v.rGain.disconnect();
+        v.lPan.disconnect();
+        v.rPan.disconnect();
+      });
+    }
+
+    function createVoicesForBus(busIndex) {
+      const cfg = getCurrentConfig();
+      if (!cfg) return;
+
+      ensureAudio();
+      const { ctx } = state.audio;
+      const bus = state.buses[busIndex];
+      const baseHz = noteToHz(state.baseNote);
+      const halfBeat = state.beatHz / 2;
+      const amp = 0.2 / cfg.carriers;
+
+      stopVoiceList(bus.voices);
+      bus.voices = [];
+
+      for (let i = 0; i < cfg.carriers; i += 1) {
+        const t = cfg.carriers === 1 ? 0 : i / (cfg.carriers - 1);
+        const pos = (t * 2) - 1;
+        const pair = lanePan(pos, cfg.spread, state.stereoWidth);
+
+        const centerHz = baseHz * Math.pow(2, cfg.semitones[i] / 12);
+        const lHz = Math.max(20, centerHz - halfBeat);
+        const rHz = Math.max(20, centerHz + halfBeat);
+
+        const lOsc = ctx.createOscillator();
+        const rOsc = ctx.createOscillator();
+        lOsc.type = 'sine';
+        rOsc.type = 'sine';
+        lOsc.frequency.value = lHz;
+        rOsc.frequency.value = rHz;
+
+        const lGain = ctx.createGain();
+        const rGain = ctx.createGain();
+        lGain.gain.value = amp;
+        rGain.gain.value = amp;
+
+        const lPan = ctx.createStereoPanner();
+        const rPan = ctx.createStereoPanner();
+        lPan.pan.value = pair.left;
+        rPan.pan.value = pair.right;
+
+        lOsc.connect(lGain);
+        lGain.connect(lPan);
+        lPan.connect(bus.gain);
+
+        rOsc.connect(rGain);
+        rGain.connect(rPan);
+        rPan.connect(bus.gain);
+
+        lOsc.start();
+        rOsc.start();
+
+        bus.voices.push({ lOsc, rOsc, lGain, rGain, lPan, rPan, pos, semitone: cfg.semitones[i] });
+      }
+    }
+
+    function glideRetuneCurrentBaseNote() {
+      if (!state.audio || !state.isPlaying || !state.beatHz) return;
+      const now = state.audio.ctx.currentTime;
+      const glideSeconds = state.glideMs / 1000;
+      const baseHz = noteToHz(state.baseNote);
+      const halfBeat = state.beatHz / 2;
+
+      state.buses.forEach((bus) => {
+        bus.voices.forEach((voice) => {
+          const centerHz = baseHz * Math.pow(2, voice.semitone / 12);
+          const lHz = Math.max(20, centerHz - halfBeat);
+          const rHz = Math.max(20, centerHz + halfBeat);
+
+          voice.lOsc.frequency.cancelScheduledValues(now);
+          voice.rOsc.frequency.cancelScheduledValues(now);
+          voice.lOsc.frequency.setTargetAtTime(lHz, now, Math.max(0.001, glideSeconds / 3));
+          voice.rOsc.frequency.setTargetAtTime(rHz, now, Math.max(0.001, glideSeconds / 3));
+        });
+      });
+    }
+
+    function crossfadeToCurrentPreset() {
+      if (!state.audio || !state.isPlaying || !state.beatHz) return;
+
+      if (state.cleanupTimer) {
+        clearTimeout(state.cleanupTimer);
+        state.cleanupTimer = null;
+      }
+
+      const { ctx } = state.audio;
+      const oldIndex = state.activeBus;
+      const newIndex = oldIndex === 0 ? 1 : 0;
+
+      createVoicesForBus(newIndex);
+
+      const now = ctx.currentTime;
+      const oldGain = state.buses[oldIndex].gain.gain;
+      const newGain = state.buses[newIndex].gain.gain;
+
+      oldGain.cancelScheduledValues(now);
+      newGain.cancelScheduledValues(now);
+      oldGain.setValueAtTime(oldGain.value, now);
+      newGain.setValueAtTime(0, now);
+
+      oldGain.linearRampToValueAtTime(0, now + CROSSFADE_SECONDS);
+      newGain.linearRampToValueAtTime(1, now + CROSSFADE_SECONDS);
+
+      state.activeBus = newIndex;
+
+      state.cleanupTimer = setTimeout(() => {
+        stopVoiceList(state.buses[oldIndex].voices);
+        state.buses[oldIndex].voices = [];
+      }, Math.floor((CROSSFADE_SECONDS * 1000) + 40));
+
+      renderStereoViz();
+    }
+
+    async function startPlayback() {
+      if (!state.beatHz) {
+        setStatus('Select a frequency first');
+        return;
+      }
+
+      ensureAudio();
+      const { ctx } = state.audio;
+      if (ctx.state === 'suspended') await ctx.resume();
+
+      state.isPlaying = true;
+
+      createVoicesForBus(state.activeBus);
+      const g = state.buses[state.activeBus].gain.gain;
+      const now = ctx.currentTime;
+      g.cancelScheduledValues(now);
+      g.setValueAtTime(0, now);
+      g.linearRampToValueAtTime(1, now + CROSSFADE_SECONDS);
+
+      setStatus('Playing');
+      document.getElementById('playBtn').textContent = 'Stop';
+      renderStereoViz();
+    }
+
+    function stopPlayback() {
+      if (!state.audio || !state.isPlaying) return;
+
+      const { ctx } = state.audio;
+      const now = ctx.currentTime;
+
+      state.buses.forEach((bus) => {
+        const g = bus.gain.gain;
+        g.cancelScheduledValues(now);
+        g.setValueAtTime(g.value, now);
+        g.linearRampToValueAtTime(0, now + CROSSFADE_SECONDS);
+      });
+
+      setTimeout(() => {
+        state.buses.forEach((bus) => {
+          stopVoiceList(bus.voices);
+          bus.voices = [];
+        });
+      }, Math.floor((CROSSFADE_SECONDS * 1000) + 40));
+
+      state.isPlaying = false;
+      setStatus('Stopped');
+      document.getElementById('playBtn').textContent = 'Play';
+      renderStereoViz();
+    }
+
+    function startRecording() {
+      ensureAudio();
+      if (state.recorder.isRecording) return;
+
+      state.recorder.leftChunks = [];
+      state.recorder.rightChunks = [];
+      state.recorder.isRecording = true;
+      document.getElementById('recordBtn').textContent = 'Stop Rec';
+      document.getElementById('recordBtn').classList.add('active');
+      setStatus('Recording...');
+    }
+
+    function stopRecordingAndDownload() {
+      if (!state.recorder.isRecording) return;
+      state.recorder.isRecording = false;
+
+      const blob = encodeMp3Blob(
+        state.recorder.leftChunks,
+        state.recorder.rightChunks,
+        state.recorder.sampleRate
+      );
+
+      if (blob) {
+        const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const fileName = 'biarual beats somting ' + stamp + '.mp3';
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } else {
+        alert('MP3 encoder did not load. Recording skipped.');
+      }
+
+      state.recorder.leftChunks = [];
+      state.recorder.rightChunks = [];
+      document.getElementById('recordBtn').textContent = 'Record';
+      document.getElementById('recordBtn').classList.remove('active');
+      setStatus(state.isPlaying ? 'Playing' : 'Stopped');
+    }
+
+    function setStatus(text) {
+      document.getElementById('statusText').textContent = text;
+    }
+
+    function updateHeaderLabel() {
+      const el = document.getElementById('freqLabel');
+      const p = PRESETS[state.beatHz];
+      if (!p) {
+        el.textContent = 'Select frequency';
+        return;
+      }
+      el.textContent = state.beatHz + ' Hz | ' + p.label + ' | ' + state.beatHz + state.variant;
+    }
+
+    function setBaseNote(noteIndex) {
+      state.baseNote = noteIndex;
+      document.querySelectorAll('[data-note]').forEach((btn) => {
+        btn.classList.toggle('active', Number(btn.dataset.note) === noteIndex);
+      });
+
+      if (state.isPlaying) glideRetuneCurrentBaseNote();
+    }
+
+    function setBeatPreset(hz) {
+      state.beatHz = hz;
+      const variants = Object.keys(PRESETS[hz].variants);
+      state.variant = variants[0];
+
+      document.querySelectorAll('[data-hz]').forEach((btn) => {
+        btn.classList.toggle('active', Number(btn.dataset.hz) === hz);
+      });
+
+      renderVariantButtons();
+      updateHeaderLabel();
+      renderStereoViz();
+
+      if (state.isPlaying) crossfadeToCurrentPreset();
+    }
+
+    function setVariant(variant) {
+      state.variant = variant;
+      document.querySelectorAll('[data-variant]').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.variant === variant);
+      });
+      updateHeaderLabel();
+      renderStereoViz();
+
+      if (state.isPlaying) crossfadeToCurrentPreset();
+    }
+
+    function setStereoWidth(value) {
+      state.stereoWidth = Number(value) / 100;
+      document.getElementById('stereoLabel').textContent = value + '%';
+
+      if (state.audio) {
+        const cfg = getCurrentConfig();
+        if (cfg) {
+          state.buses.forEach((bus) => {
+            bus.voices.forEach((voice, i) => {
+              const carriers = cfg.carriers;
+              const t = carriers === 1 ? 0 : i / (carriers - 1);
+              const pos = (t * 2) - 1;
+              const pair = lanePan(pos, cfg.spread, state.stereoWidth);
+              voice.lPan.pan.setTargetAtTime(pair.left, state.audio.ctx.currentTime, 0.04);
+              voice.rPan.pan.setTargetAtTime(pair.right, state.audio.ctx.currentTime, 0.04);
+            });
+          });
+        }
+      }
+
+      renderStereoViz();
+    }
+
+    function setVolume(value) {
+      state.volumeDb = Number(value);
+      document.getElementById('volumeLabel').textContent = value + 'dB';
+      if (!state.audio) return;
+
+      const gainValue = dbToGain(state.volumeDb);
+      const now = state.audio.ctx.currentTime;
+      state.audio.master.gain.cancelScheduledValues(now);
+      state.audio.master.gain.setValueAtTime(state.audio.master.gain.value, now);
+      state.audio.master.gain.linearRampToValueAtTime(gainValue, now + 0.1);
+    }
+
+    function setGlide(value) {
+      state.glideMs = Number(value);
+      document.getElementById('glideLabel').textContent = value + 'ms';
+    }
+
+    function renderVariantButtons() {
+      const section = document.getElementById('variantSection');
+      const grid = document.getElementById('variantGrid');
+      grid.innerHTML = '';
+
+      if (!state.beatHz) {
+        section.style.display = 'none';
+        return;
+      }
+
+      const variants = Object.keys(PRESETS[state.beatHz].variants);
+      section.style.display = variants.length ? 'block' : 'none';
+
+      variants.forEach((variant) => {
+        const btn = document.createElement('button');
+        btn.dataset.variant = variant;
+        btn.textContent = state.beatHz + variant;
+        btn.classList.toggle('active', variant === state.variant);
+        btn.addEventListener('click', () => setVariant(variant));
+        grid.appendChild(btn);
+      });
+    }
+
+    function renderStereoViz() {
+      const svg = document.getElementById('stereoViz');
+      svg.querySelectorAll('.dot').forEach((n) => n.remove());
+
+      const cfg = getCurrentConfig();
+      if (!cfg) return;
+
+      const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#a78bfa', '#ff88cc'];
+      for (let i = 0; i < cfg.carriers; i += 1) {
+        const t = cfg.carriers === 1 ? 0 : i / (cfg.carriers - 1);
+        const pos = (t * 2) - 1;
+        const pair = lanePan(pos, cfg.spread, state.stereoWidth);
+
+        const lx = 150 + (pair.left * 135);
+        const rx = 150 + (pair.right * 135);
+
+        const dotL = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dotL.setAttribute('class', 'dot');
+        dotL.setAttribute('cx', String(lx));
+        dotL.setAttribute('cy', '30');
+        dotL.setAttribute('r', '6');
+        dotL.setAttribute('fill', colors[i % colors.length]);
+        dotL.setAttribute('opacity', '0.88');
+
+        const dotR = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dotR.setAttribute('class', 'dot');
+        dotR.setAttribute('cx', String(rx));
+        dotR.setAttribute('cy', '80');
+        dotR.setAttribute('r', '6');
+        dotR.setAttribute('fill', colors[i % colors.length]);
+        dotR.setAttribute('opacity', '0.88');
+
+        svg.appendChild(dotL);
+        svg.appendChild(dotR);
+      }
+    }
+
+    function buildButtonGrids() {
+      const noteGrid = document.getElementById('noteGrid');
+      NOTE_NAMES.forEach((name, idx) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.dataset.note = String(idx);
+        b.textContent = name;
+        if (idx === state.baseNote) b.classList.add('active');
+        b.addEventListener('click', () => setBaseNote(idx));
+        noteGrid.appendChild(b);
+      });
+
+      const freqGrid = document.getElementById('freqGrid');
+      BEAT_PRESETS.forEach((hz) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.dataset.hz = String(hz);
+        const mood = PRESETS[hz].label.split('|')[0].trim();
+        b.textContent = hz + ' Hz | ' + mood;
+        b.addEventListener('click', () => setBeatPreset(hz));
+        freqGrid.appendChild(b);
+      });
+    }
+
+    function animateWave() {
+      const canvas = document.getElementById('waveCanvas');
+      const ctx = canvas.getContext('2d');
+
+      const rect = canvas.getBoundingClientRect();
+      const w = Math.max(1, Math.floor(rect.width));
+      const h = Math.max(1, Math.floor(rect.height));
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+      }
+
+      ctx.fillStyle = '#0d0f13';
+      ctx.fillRect(0, 0, w, h);
+
+      if (state.audio && state.analyserData) {
+        state.audio.analyser.getByteFrequencyData(state.analyserData);
+        const bins = Math.min(220, state.analyserData.length);
+        const slice = w / bins;
+
+        ctx.strokeStyle = '#0ea5e9';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        for (let i = 0; i < bins; i += 1) {
+          const x = i * slice;
+          const y = h - ((state.analyserData[i] / 255) * h);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      } else {
+        ctx.strokeStyle = '#1f2937';
+        ctx.beginPath();
+        ctx.moveTo(0, h * 0.5);
+        ctx.lineTo(w, h * 0.5);
+        ctx.stroke();
+      }
+
+      requestAnimationFrame(animateWave);
+    }
+
+    function wireControls() {
+      document.getElementById('playBtn').addEventListener('click', () => {
+        if (state.isPlaying) stopPlayback();
+        else startPlayback();
+      });
+
+      document.getElementById('recordBtn').addEventListener('click', () => {
+        if (state.recorder.isRecording) stopRecordingAndDownload();
+        else startRecording();
+      });
+
+      document.getElementById('stereoSlider').addEventListener('input', (e) => {
+        setStereoWidth(e.target.value);
+      });
+
+      document.getElementById('glideSlider').addEventListener('input', (e) => {
+        setGlide(e.target.value);
+      });
+
+      document.getElementById('volumeSlider').addEventListener('input', (e) => {
+        setVolume(e.target.value);
+      });
+    }
+
+    buildButtonGrids();
+    wireControls();
+    setGlide(300);
+    setBeatPreset(4);
+    updateHeaderLabel();
+    renderStereoViz();
+    animateWave();
+  </script>
+</body>
+</html>
